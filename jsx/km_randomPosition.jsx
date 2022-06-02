@@ -50,22 +50,26 @@
 
         compWidthCheck.onClick = function () { maxXEdit.text = currentComp.width }
 
-        var botRow = win.add("group", undefined, "top row");
-        botRow.alignChildren = ["fill", "fill"];
-        var minYStatic = botRow.add("statictext", undefined, "Min Y: ");
-        var minYEdit = botRow.add("edittext", undefined, "0");
+        var midRow = win.add("group", undefined, "mid row");
+        midRow.alignChildren = ["fill", "fill"];
+        var minYStatic = midRow.add("statictext", undefined, "Min Y: ");
+        var minYEdit = midRow.add("edittext", undefined, "0");
         minYEdit.characters = editCharacters;
 
-        var maxYStatic = botRow.add("statictext", undefined, "Max Y: ");
-        var maxYEdit = botRow.add("edittext", undefined, "1080");
+        var maxYStatic = midRow.add("statictext", undefined, "Max Y: ");
+        var maxYEdit = midRow.add("edittext", undefined, "1080");
         maxYEdit.characters = editCharacters;
-        var compHeightCheck = botRow.add("checkbox", undefined, "\u00A0Comp Height");
+        var compHeightCheck = midRow.add("checkbox", undefined, "\u00A0Comp Height");
         compHeightCheck.value = false;
 
         compHeightCheck.onClick = function () { maxYEdit.text = currentComp.height };
 
-
-        // var slider = win.add("slider", undefined, 0, 0, 1);
+        var bottomRow = win.add("group", undefined, "bottom row");
+        bottomRow.orientation = "row";
+        bottomRow.alignChildren = ["fill", "fill"];
+        var sepDimCheckbox = bottomRow.add("checkbox", undefined, "\u00A0Separate Dimensions");
+        sepDimCheckbox.value = false;
+        var slider = bottomRow.add("slider", undefined, 0, 1, 2);
     
 
         var applyGroup = win.add("group", undefined, "run script");
@@ -73,13 +77,11 @@
         var runButton = applyGroup.add("button", undefined, "Run Me");
 
 
-        // slider.onChanging = function () {
+        // slider.onChange = function () {
         //     app.beginUndoGroup("Start positioning")
         //     try {
                 
-        //         for (var i = 0; i < layerSelection.length; i++) {
-        //             Math.random() * layerSelection[i].property("ADBE Transform Group").property("ADBE Position")
-        //         }
+        //         adjustRandomPos()
 
         //     } catch (e) {
         //         alert(e)
@@ -87,14 +89,16 @@
         //         app.endUndoGroup();
         //     }
         // }
-        
 
+        sepDimCheckbox.onClick = function () {
+            separateDimensions(sepDimCheckbox.value);
+        }
 
         runButton.onClick = function () {
             win.close()
             app.beginUndoGroup("Start positioning")
             try {
-
+            
                 setRandomPos(minXEdit.text, maxXEdit.text, minYEdit.text, maxYEdit.text);
 
             } catch (e) {
@@ -114,6 +118,19 @@
     
     }
 
+    function separateDimensions(dimSeparated) {
+        for (var i = 0; i < layerSelection.length; i++) {
+            var pos = layerSelection[i].property("ADBE Transform Group").property("ADBE Position");
+            if (dimSeparated == true) {
+                pos.dimensionsSeparated = true;
+            } else {
+                pos.dimensionsSeparated = false;
+            }
+        }
+        return layerSelection.length
+    }
+
+
     function setRandomPos(xMin,xMax,yMin,yMax) {
         
 
@@ -122,19 +139,35 @@
             var xRange = Math.floor(Math.random()*(parseFloat(xMax) - parseFloat(xMin) + 1)) + parseFloat(xMin);
             var yRange = Math.floor(Math.random() * (parseFloat(yMax) - parseFloat(yMin) + 1)) + parseFloat(yMin);
 
-            layerSelection[i].property("ADBE Transform Group").property("ADBE Position").setValue([xRange, yRange])
+            var pos = layerSelection[i].property("ADBE Transform Group").property("ADBE Position");
+
+            if (pos.dimensionsSeparated == true) {
+                layerSelection[i].property("ADBE Transform Group").property("ADBE Position_0").setValue(xRange);
+                layerSelection[i].property("ADBE Transform Group").property("ADBE Position_1").setValue(yRange);
+            } else {
+                pos.setValue([xRange, yRange])
+            }
+            
         }
+
+        return layerSelection.length
 
     };
 
 
-    function adjustRandomPos() {
-        for (var i = 0; i < layerSelection.length; i++) {
+    // function adjustRandomPos() {
+    //     for (var i = 0; i < layerSelection.length; i++) {
 
-            Math.random() * layerSelection[i].property("ADBE Transform Group").property("ADBE Position")
-        }
+    //         for (var i = 0; i < 2; i++) {
+    //             var pos = layerSelection[i].property("ADBE Transform Group").property("ADBE Position");
+    //             var randomPos = Math.random() * pos.value;
+    //             alert(typeof randomPos)
+    //             alert(randomPos)
+                
+    //         }
+    //     }
 
-    }
+    // }
     
 
 
