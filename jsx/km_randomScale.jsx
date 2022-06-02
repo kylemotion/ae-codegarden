@@ -35,7 +35,6 @@
         win.orientation = 'column';
         win.alignChildren = ["fill", "fill"];
 
-
         var topRow = win.add("group", undefined, "top row");
         topRow.alignChildren = ["fill", "fill"];
         var minScaleStatic = topRow.add("statictext", undefined, "Min Scale: ");
@@ -46,11 +45,9 @@
         var maxScaleEdit = topRow.add("edittext", undefined, "100");
         maxScaleEdit.characters = editCharacters;
 
-
         var slider = win.add("slider", undefined, 100, 0, 100);
         slider.maxvalue = maxScaleEdit.text;
         
-
         var sliderValueGroup = win.add("group", undefined, "slider value group");
         sliderValueGroup.oreientation = 'row';
         sliderValueGroup.alignment = "center";
