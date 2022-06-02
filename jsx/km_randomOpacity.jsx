@@ -65,12 +65,6 @@
         var sliderValue = sliderValueGroup.add("statictext", undefined, "");
         sliderValue.text = Math.floor(slider.value);
         
-        
-        var applyGroup = win.add("group", undefined, "run script");
-        applyGroup.alignChildren = ["fill", "fill"]
-        var runButton = applyGroup.add("button", undefined, "Run Me");
-
-
 
         slider.onChanging = function () {
             app.beginUndoGroup("Start positioning")
@@ -84,22 +78,6 @@
                 app.endUndoGroup();
             }
         }
-
-
-        runButton.onClick = function () {
-            win.close()
-            app.beginUndoGroup("Start positioning")
-            try {
-
-                randomPos(minOpacityEdit.text, maxOpacityEdit.text)
-
-            } catch (e) {
-                alert(e)
-            } finally {
-                app.endUndoGroup();
-            }
-        }
-
 
         win.layout.layout();
         win.onResizing = function () {

@@ -55,13 +55,11 @@
         var sliderValue = sliderValueGroup.add("statictext", undefined, "");
         sliderValue.text = Math.floor(slider.value);
 
-        var applyGroup = win.add("group", undefined, "run script");
-        applyGroup.alignChildren = ["fill", "fill"]
-        var runButton = applyGroup.add("button", undefined, "Run Me");
 
         
         maxScaleEdit.onChange = function () {
             slider.maxvalue = maxScaleEdit.text
+            slider.value = parseFloat(maxScaleEdit.text);
         }
 
         slider.onChanging = function () {
@@ -69,22 +67,6 @@
             try {
                 sliderValue.text = Math.floor(slider.value);
                 randomPos(minScaleEdit.text, slider.value)
-
-            } catch (e) {
-                alert(e)
-            } finally {
-                app.endUndoGroup();
-            }
-        }
-
-
-
-        runButton.onClick = function () {
-            win.close()
-            app.beginUndoGroup("Start positioning")
-            try {
-
-                randomPos(minScaleEdit.text, maxScaleEdit.text)
 
             } catch (e) {
                 alert(e)
@@ -106,7 +88,6 @@
 
 
         for (var i = 0; i < layerSelection.length; i++) {
-            //  Math.floor(Math.random() * (max - min + 1)) + min;
             var scaleRange = Math.floor(Math.random() * (parseFloat(scaleMax) - parseFloat(scaleMin) + 1)) + parseFloat(scaleMin);
 
             var pos = layerSelection[i].property("ADBE Transform Group").property("ADBE Scale");
