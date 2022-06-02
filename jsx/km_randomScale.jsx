@@ -109,7 +109,13 @@
             //  Math.floor(Math.random() * (max - min + 1)) + min;
             var scaleRange = Math.floor(Math.random() * (parseFloat(scaleMax) - parseFloat(scaleMin) + 1)) + parseFloat(scaleMin);
 
-            layerSelection[i].property("ADBE Transform Group").property("ADBE Scale").setValue([scaleRange, scaleRange])
+            var pos = layerSelection[i].property("ADBE Transform Group").property("ADBE Scale");
+
+            if (layerSelection[i].threeDLayer == true) {
+                pos.setValue([scaleRange, scaleRange, scaleRange])
+            } else {
+                pos.setValue([scaleRange, scaleRange])
+            }
         }
 
     };
