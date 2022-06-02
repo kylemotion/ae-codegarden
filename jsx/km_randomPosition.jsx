@@ -77,18 +77,18 @@
         var runButton = applyGroup.add("button", undefined, "Run Me");
 
 
-        // slider.onChange = function () {
-        //     app.beginUndoGroup("Start positioning")
-        //     try {
+        slider.onChange = function () {
+            app.beginUndoGroup("Start positioning")
+            try {
                 
-        //         adjustRandomPos()
+                adjustRandomPos(minXEdit.text, maxXEdit.text, minYEdit.text, maxYEdit.text)
 
-        //     } catch (e) {
-        //         alert(e)
-        //     } finally {
-        //         app.endUndoGroup();
-        //     }
-        // }
+            } catch (e) {
+                alert(e)
+            } finally {
+                app.endUndoGroup();
+            }
+        }
 
         sepDimCheckbox.onClick = function () {
             separateDimensions(sepDimCheckbox.value);
@@ -155,19 +155,25 @@
     };
 
 
-    // function adjustRandomPos() {
-    //     for (var i = 0; i < layerSelection.length; i++) {
+    function adjustRandomPos(xMin, xMax, yMin, yMax) {
+        for (var i = 0; i < layerSelection.length; i++) {
+            var xRange = Math.floor(Math.random() * (parseFloat(xMax) - parseFloat(xMin) + 1)) + parseFloat(xMin);
+            var yRange = Math.floor(Math.random() * (parseFloat(yMax) - parseFloat(yMin) + 1)) + parseFloat(yMin);
 
-    //         for (var i = 0; i < 2; i++) {
-    //             var pos = layerSelection[i].property("ADBE Transform Group").property("ADBE Position");
-    //             var randomPos = Math.random() * pos.value;
-    //             alert(typeof randomPos)
-    //             alert(randomPos)
-                
-    //         }
-    //     }
+            var pos = layerSelection[i].property("ADBE Transform Group").property("ADBE Position");
 
-    // }
+            if (pos.dimensionsSeparated == true) {
+                layerSelection[i].property("ADBE Transform Group").property("ADBE Position_0").setValue(xRange);
+                layerSelection[i].property("ADBE Transform Group").property("ADBE Position_1").setValue(yRange);
+            } else {
+                pos.setValue([xRange, yRange])
+            }
+
+            // var randomPos = Math.random() * pos.value;
+            // pos.setValue([randomPos[0], randomPos[1]])
+            
+        }
+    }
     
 
 
