@@ -66,9 +66,6 @@
         sliderValue.text = Math.floor(slider.value);
         
         
-        
-
-
         var applyGroup = win.add("group", undefined, "run script");
         applyGroup.alignChildren = ["fill", "fill"]
         var runButton = applyGroup.add("button", undefined, "Run Me");
