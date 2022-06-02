@@ -45,6 +45,11 @@
         var maxXEdit = topRow.add("edittext", undefined, "1920");
         maxXEdit.characters = editCharacters;
 
+        var compWidthCheck = topRow.add("checkbox", undefined, "\u00A0Comp Width");
+        compWidthCheck.value = false;
+
+        compWidthCheck.onClick = function () { maxXEdit.text = currentComp.width }
+
         var botRow = win.add("group", undefined, "top row");
         botRow.alignChildren = ["fill", "fill"];
         var minYStatic = botRow.add("statictext", undefined, "Min Y: ");
@@ -54,23 +59,43 @@
         var maxYStatic = botRow.add("statictext", undefined, "Max Y: ");
         var maxYEdit = botRow.add("edittext", undefined, "1080");
         maxYEdit.characters = editCharacters;
-        
+        var compHeightCheck = botRow.add("checkbox", undefined, "\u00A0Comp Height");
+        compHeightCheck.value = false;
+
+        compHeightCheck.onClick = function () { maxYEdit.text = currentComp.height };
+
+
+        // var slider = win.add("slider", undefined, 0, 0, 1);
+    
 
         var applyGroup = win.add("group", undefined, "run script");
         applyGroup.alignChildren = ["fill", "fill"]
         var runButton = applyGroup.add("button", undefined, "Run Me");
+
+
+        // slider.onChanging = function () {
+        //     app.beginUndoGroup("Start positioning")
+        //     try {
+                
+        //         for (var i = 0; i < layerSelection.length; i++) {
+        //             Math.random() * layerSelection[i].property("ADBE Transform Group").property("ADBE Position")
+        //         }
+
+        //     } catch (e) {
+        //         alert(e)
+        //     } finally {
+        //         app.endUndoGroup();
+        //     }
+        // }
+        
+
 
         runButton.onClick = function () {
             win.close()
             app.beginUndoGroup("Start positioning")
             try {
 
-                // if (!minXEdit || !maxXEdit || !minYEdit || !maxYEdit) {
-                //     alert("Enter a number in every text field, then try again")
-                //     return
-                // }
-
-                randomPos(minXEdit.text, maxXEdit.text, minYEdit.text, maxYEdit.text)
+                setRandomPos(minXEdit.text, maxXEdit.text, minYEdit.text, maxYEdit.text);
 
             } catch (e) {
                 alert(e)
@@ -88,26 +113,28 @@
         win.show();
     
     }
-    function randomPos(xMin,xMax,yMin,yMax) {
+
+    function setRandomPos(xMin,xMax,yMin,yMax) {
         
 
         for (var i = 0; i < layerSelection.length; i++){
-
-            var diffX = parseInt(xMax) - parseInt(xMin);
-            var rand = Math.random();
-            var randX = Math.floor(rand * diffX);
-            var xRange = randX + parseInt(xMin);
-
-            var diffY = parseInt(yMax) - parseInt(yMin);
-            var randY = Math.floor(rand * diffY);
-            var yRange = randY + parseInt(yMin);
-
-
+                        //  Math.floor(Math.random() * (max - min + 1)) + min;
+            var xRange = Math.floor(Math.random()*(parseFloat(xMax) - parseFloat(xMin) + 1)) + parseFloat(xMin);
+            var yRange = Math.floor(Math.random() * (parseFloat(yMax) - parseFloat(yMin) + 1)) + parseFloat(yMin);
 
             layerSelection[i].property("ADBE Transform Group").property("ADBE Position").setValue([xRange, yRange])
         }
 
     };
+
+
+    function adjustRandomPos() {
+        for (var i = 0; i < layerSelection.length; i++) {
+
+            Math.random() * layerSelection[i].property("ADBE Transform Group").property("ADBE Position")
+        }
+
+    }
     
 
 
