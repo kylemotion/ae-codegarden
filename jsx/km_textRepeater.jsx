@@ -7,9 +7,9 @@
 */
 
 
-(function km_multiLineText(thisObj) {
+(function km_textRepeater(thisObj) {
     
-    var scriptName = "km_multiLineText"
+    var scriptName = "km_textRepeater"
     var editcharacters = 20;
 
     var currentComp = app.project.activeItem;
@@ -38,7 +38,7 @@
         textInputGroup.orientation = 'row';
         // textInputGroup.alignChildren = ["fill", "fill"];
         var textInputStatic = textInputGroup.add("statictext", undefined, "Text Input:");
-        var textInputEdit = textInputGroup.add("edittext", undefined, "Enter Text Here\r\n ", {multiline: true, scrollable: true});
+        var textInputEdit = textInputGroup.add("edittext", undefined, "Enter Text Here", {multiline: true, scrollable: true});
         textInputEdit.characters = editcharacters;
         var copiesGroup = textInputGroup.add("group", undefined, "copies group");
         var numCopiesStatic = copiesGroup.add("statictext", undefined, "# of Copies:");
@@ -54,6 +54,7 @@
         var colorCheckGroup = win.add("group", undefined, "color check group");
         colorCheckGroup.orientation = 'row';
         var fillStrokeCheckbox = colorCheckGroup.add("checkbox", undefined, "\u00A0Fill/Stroke");
+        fillStrokeCheckbox.value = true;
         var altColors = colorCheckGroup.add("checkbox", undefined, "\u00A0Alternate Colors");
 
         var colorInputGroup = win.add("group", undefined, "color input group");
@@ -132,10 +133,24 @@
         textDoc.justification = ParagraphJustification.CENTER_JUSTIFY;
         textProp.setValue(textDoc);
 
-
-
+                var numCopiesSlider = newText.property("ADBE Effect Parade").addProperty("ADBE Slider Control");
+        numCopiesSlider.name = "Num Copies";
+        numCopiesSlider.property(1).setValue(parseInt(numCopies));
         
-
+        textProp.expression = 
+        's = myText = value + "\\n";\
+        numCopies = effect("Num Copies")(1);\
+        for(i = 1; i<numCopies; i++){\
+            s += myText\
+        }\
+        s'
+        
+        var layerSize = newText.sourceRectAtTime(0, true);
+        var transProp = newText.property("ADBE Transform Group");
+        var textAnchor = transProp.property("ADBE Anchor Point");
+        var textWidth = layerSize.left + layerSize.width/2;
+        var textHeight = layerSize.top + layerSize.height/2;
+        textAnchor.setValue([textWidth, textHeight]);
 
 
         return currentComp.layer(textInput)
