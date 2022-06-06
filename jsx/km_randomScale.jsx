@@ -5,23 +5,6 @@
     var scriptName = "km_randomScale";
     var editCharacters = 5;
 
-    var currentComp = app.project.activeItem;
-
-    if (!(currentComp && currentComp instanceof CompItem)){
-        alert("Open up a comp first!")
-    return
-    };
-
-    
-    var layerSelection = currentComp.selectedLayers;
-
-    if (layerSelection < 1) {
-        alert("Select atleast 1 layer first!")
-        return
-    };
-
-
-
     createUI(thisObj)
 
     function createUI(thisObj) {
@@ -33,10 +16,10 @@
             })
 
         win.orientation = 'column';
-        win.alignChildren = ["fill", "fill"];
+        win.alignChildren = ["fill", "top"];
 
         var topRow = win.add("group", undefined, "top row");
-        topRow.alignChildren = ["fill", "fill"];
+        topRow.alignChildren = ["left", "top"];
         var minScaleStatic = topRow.add("statictext", undefined, "Min Scale: ");
         var minScaleEdit = topRow.add("edittext", undefined, "0");
         minScaleEdit.characters = editCharacters;
@@ -55,7 +38,6 @@
         var sliderValue = sliderValueGroup.add("statictext", undefined, "");
         sliderValue.text = Math.floor(slider.value);
 
-
         
         maxScaleEdit.onChange = function () {
             slider.maxvalue = maxScaleEdit.text
@@ -65,8 +47,25 @@
         slider.onChanging = function () {
             app.beginUndoGroup("Start positioning")
             try {
+
+                var currentComp = app.project.activeItem;
+
+                if (!(currentComp && currentComp instanceof CompItem)) {
+                    alert("Open up a comp first!")
+                    return
+                };
+
+
+                var layerSelection = currentComp.selectedLayers;
+
+                if (layerSelection < 1) {
+                    alert("Select atleast 1 layer first!")
+                    return
+                };
+
+
                 sliderValue.text = Math.floor(slider.value);
-                randomPos(minScaleEdit.text, slider.value)
+                randomPos(layerSelection ,minScaleEdit.text, slider.value)
 
             } catch (e) {
                 alert(e)
@@ -76,23 +75,28 @@
         }
 
 
-        win.layout.layout();
-        win.onResizing = function () {
-            this.layout.resize()
+        win.onResizing = win.onResize = function () {
+            this.layout.resize();
         };
 
-        win.show();
+        if (win instanceof Window) {
+            win.center();
+            win.show();
+        } else {
+            win.layout.layout(true);
+            win.layout.resize();
+        }
 
     }
-    function randomPos(scaleMin, scaleMax) {
+    function randomPos(selectedLayers,scaleMin, scaleMax) {
 
 
-        for (var i = 0; i < layerSelection.length; i++) {
+        for (var i = 0; i < selectedLayers.length; i++) {
             var scaleRange = Math.floor(Math.random() * (parseFloat(scaleMax) - parseFloat(scaleMin) + 1)) + parseFloat(scaleMin);
 
-            var pos = layerSelection[i].property("ADBE Transform Group").property("ADBE Scale");
+            var pos = selectedLayers[i].property("ADBE Transform Group").property("ADBE Scale");
 
-            if (layerSelection[i].threeDLayer == true) {
+            if (selectedLayers[i].threeDLayer == true) {
                 pos.setValue([scaleRange, scaleRange, scaleRange])
             } else {
                 pos.setValue([scaleRange, scaleRange])
