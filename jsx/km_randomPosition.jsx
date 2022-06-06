@@ -76,7 +76,7 @@
         
         
         slider.onChanging = function () {
-            app.beginUndoGroup("Start positioning");
+            
             
             var currentComp = app.project.activeItem;
             
@@ -91,7 +91,7 @@
             alert("Select atleast 1 layer first!")
             return
             };
-            
+                app.beginUndoGroup("Start positioning");
             try {
                 adjustRandomPos(layerSelection, minXEdit.text, maxXEdit.text, minYEdit.text, maxYEdit.text, minZEdit.text, maxZEdit.text);
             } catch (e) {
@@ -102,7 +102,7 @@
         }
 
         threeDCheckbox.onClick = function () {
-            app.beginUndoGroup("3D Layer");
+            
 
             var currentComp = app.project.activeItem;
 
@@ -118,8 +118,10 @@
                 return
             };
 
+            app.beginUndoGroup("3D Layer");
 
             setThreeDLayer(layerSelection, threeDCheckbox.value);
+            
             app.endUndoGroup()
 
         }
@@ -157,8 +159,6 @@
                 return
             };
 
-
-            win.close();
             addNewCamera(currentComp, camCheckbox.value, maxZEdit.text) 
             app.endUndoGroup()
         }
@@ -221,7 +221,7 @@
             if (selectedLayers[i].threeDLayer == true && pos.dimensionsSeparated == true) {
                 selectedLayers[i].property("ADBE Transform Group").property("ADBE Position_0").setValue(xRange);
                 selectedLayers[i].property("ADBE Transform Group").property("ADBE Position_1").setValue(yRange);
-                selectedLayers[i].property("ADBE Transform Group").property("ADBE Position_3").setValue(zRange);
+                selectedLayers[i].property("ADBE Transform Group").property("ADBE Position_2").setValue(zRange);
             } else {
                 pos.setValue([xRange, yRange, zRange])
             } 
