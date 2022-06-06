@@ -50,12 +50,14 @@
         sliderValue.text = Math.floor(slider.value);
         
 
-        var currentComp = app.project.activeItem;
 
-        var layerSelection = currentComp.selectedLayers;
                 
         slider.onChanging = function () {
             app.beginUndoGroup("Start positioning")
+
+            var currentComp = app.project.activeItem;
+
+            var layerSelection = currentComp.selectedLayers;
             
             if (!(currentComp && currentComp instanceof CompItem)) {
                 alert("Open up a comp first!")
