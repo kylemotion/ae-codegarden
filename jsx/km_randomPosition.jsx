@@ -17,7 +17,7 @@
             })
     
         win.orientation = 'column';
-        win.alignChildren = ["fill", "top"];
+        win.alignChildren = ["left", "top"];
 
 
         var xRow = win.add("group", undefined, "x row");
@@ -55,7 +55,7 @@
         var minZEdit = zRow.add("edittext", undefined, "0");
         minZEdit.characters = editCharacters;
         var maxZStatic = zRow.add("statictext", undefined, "Max Z:\u00A0");
-        var maxZEdit = zRow.add("edittext", undefined, "6000");
+        var maxZEdit = zRow.add("edittext", undefined, "1000");
         maxZEdit.characters = editCharacters;
         var threeDCheckbox = zRow.add("checkbox", undefined, "\u00A03D Layer");
 
@@ -73,13 +73,14 @@
         sliderStatic.alignment = "center";
         var slider = sliderRow.add("slider", undefined, 0, 1, 2);
     
-        var currentComp = app.project.activeItem;
         
-        var layerSelection = currentComp.selectedLayers;
-   
-
+        
         slider.onChanging = function () {
             app.beginUndoGroup("Start positioning");
+            
+            var currentComp = app.project.activeItem;
+            
+            var layerSelection = currentComp.selectedLayers;
 
         if (!(currentComp && currentComp instanceof CompItem)) {
             alert("Open up a comp first!")
@@ -103,6 +104,10 @@
         threeDCheckbox.onClick = function () {
             app.beginUndoGroup("3D Layer");
 
+            var currentComp = app.project.activeItem;
+
+            var layerSelection = currentComp.selectedLayers;
+
             if (!(currentComp && currentComp instanceof CompItem)) {
                 alert("Open up a comp first!")
                 return
@@ -123,6 +128,10 @@
         sepDimCheckbox.onClick = function () {
             app.beginUndoGroup("separate dimensions");
 
+            var currentComp = app.project.activeItem;
+
+            var layerSelection = currentComp.selectedLayers;
+
             if (!(currentComp && currentComp instanceof CompItem)) {
                 alert("Open up a comp first!")
                 return
@@ -140,13 +149,11 @@
         camCheckbox.onClick = function () {
             app.beginUndoGroup("add camera")
 
+            var currentComp = app.project.activeItem;
+
+
             if (!(currentComp && currentComp instanceof CompItem)) {
                 alert("Open up a comp first!")
-                return
-            };
-
-            if (layerSelection < 1) {
-                alert("Select atleast 1 layer first!")
                 return
             };
 
