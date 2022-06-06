@@ -12,22 +12,6 @@
     var scriptName = "km_randomOpacity";
     var editCharacters = 5;
 
-    var currentComp = app.project.activeItem;
-
-    if (!(currentComp && currentComp instanceof CompItem)){
-        alert("Open up a comp first!")
-    return
-    };
-
-    
-    var layerSelection = currentComp.selectedLayers;
-
-    if (layerSelection < 1) {
-        alert("Select atleast 1 layer first!")
-        return
-    };
-
-
 
     createUI(thisObj)
 
@@ -40,11 +24,11 @@
             })
 
         win.orientation = 'column';
-        win.alignChildren = ["fill", "fill"];
+        win.alignChildren = ["fill", "top"];
 
 
         var topRow = win.add("group", undefined, "top row");
-        topRow.alignChildren = ["fill", "fill"];
+        topRow.alignChildren = ["left", "top"];
         var minOpacityStatic = topRow.add("statictext", undefined, "Min Opacity: ");
         var minOpacityEdit = topRow.add("edittext", undefined, "0");
         minOpacityEdit.characters = editCharacters;
@@ -66,11 +50,26 @@
         sliderValue.text = Math.floor(slider.value);
         
 
+        var currentComp = app.project.activeItem;
+
+        var layerSelection = currentComp.selectedLayers;
+                
         slider.onChanging = function () {
             app.beginUndoGroup("Start positioning")
+            
+            if (!(currentComp && currentComp instanceof CompItem)) {
+                alert("Open up a comp first!")
+                return
+            };
+
+            if (layerSelection < 1) {
+                alert("Select atleast 1 layer first!")
+                return
+            };
+
             try {
                 sliderValue.text = Math.floor(slider.value);
-                randomPos(minOpacityEdit.text, slider.value)
+                randomOpacity(layerSelection ,minOpacityEdit.text, slider.value)
 
             } catch (e) {
                 alert(e)
@@ -79,23 +78,28 @@
             }
         }
 
-        win.layout.layout();
-        win.onResizing = function () {
-            this.layout.resize()
+        win.onResizing = win.onResize = function () {
+            this.layout.resize();
         };
 
-        win.show();
+        if (win instanceof Window) {
+            win.center();
+            win.show();
+        } else {
+            win.layout.layout(true);
+            win.layout.resize();
+        }
 
     }
     
-    function randomPos(opacityMin, opacityMax) {
+    function randomOpacity(selectedLayers ,opacityMin, opacityMax) {
 
 
-        for (var i = 0; i < layerSelection.length; i++) {
+        for (var i = 0; i < selectedLayers.length; i++) {
             //  Math.floor(Math.random() * (max - min + 1)) + min;
             var opacityRange = Math.floor(Math.random() * (parseFloat(opacityMax) - parseFloat(opacityMin) + 1)) + parseFloat(opacityMin);
 
-            layerSelection[i].property("ADBE Transform Group").property("ADBE Opacity").setValue([opacityRange])
+            selectedLayers[i].property("ADBE Transform Group").property("ADBE Opacity").setValue([opacityRange])
         }
 
     };
