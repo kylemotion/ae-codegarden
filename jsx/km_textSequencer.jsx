@@ -27,11 +27,12 @@
 
         var tpanel = win.add("tabbedpanel");
         var inputTab = tpanel.add("tab", undefined, "Input");
-        var textInputGroup = inputTab.add("group", undefined, "text input group");
+        inputTab.alignChildren = ["fill", "fill"];
+        var textInputGroup = inputTab.add("panel", undefined);
         textInputGroup.orientation = 'column';
         textInputGroup.alignChildren = ["fill", "top"];
         var textInputStatic = textInputGroup.add("statictext", undefined, "Text Input:");
-        var textInputEdit = textInputGroup.add("edittext", [0, 0, 150, 100], "Enter Text Here", {multiline: true, scrollable: true});
+        var textInputEdit = textInputGroup.add("edittext", [0,0,-1,100], "Enter Text Here", { multiline: true, scrollable: true });
         textInputEdit.characters = editcharacters;
 
         var specsGroup = inputTab.add("panel", undefined);
@@ -42,7 +43,11 @@
         var specCompDuration = specDurGroup.add("radiobutton", undefined, "\u00A0Use Comp Duration");
         specCompDuration.value = true;
         var specCustomDuration = specDurGroup.add("radiobutton", undefined, "\u00A0Use Custom Duration");
-        var durationEdit = specsGroup.add("edittext", undefined);
+        var durationInputGroup = specsGroup.add("group", undefined, "Duration Input Group");
+        durationInputGroup.orientation = 'row';
+        var durationStatic = durationInputGroup.add("statictext", undefined, "Duration:");
+        var durationEdit = durationInputGroup.add("edittext", undefined);
+        durationEdit.alignment = ["fill", "fill"];
         durationEdit.characters = editcharacters;
         
         
@@ -53,6 +58,11 @@
         var fontStyle = styleTab.add("panel", undefined, "Font Style");
         
         var colorStyle = styleTab.add("panel", undefined, "Color Style");
+        colorStyle.orientation = 'row';
+        var colorFillStatic = colorStyle.add("statictext", undefined, "Color Hex: ");
+        var colorFillEdit = colorStyle.add("edittext", undefined);
+        colorFillEdit.alignment = ["fill", "top"];
+        colorFillEdit.characters = editcharacters;
 
 
         
@@ -61,6 +71,27 @@
         applyGroup.alignChildren = ["fill", "fill"];
         var helpButton = applyGroup.add("button", undefined, "Help Me");
         var createTextButton = applyGroup.add("button", undefined, "Create Text");
+
+
+        if (specCompDuration.value = true) {
+            if (app.project.activeItem && app.project.activeItem instanceof CompItem) { 
+                durationEdit.text = Math.floor(app.project.activeItem.duration) + " seconds"
+            }
+        }
+
+        specCompDuration.onClick = function () {
+            if (app.project.activeItem && app.project.activeItem instanceof CompItem) {
+                durationEdit.text = Math.floor(app.project.activeItem.duration) + " seconds"
+            }
+        }
+
+        specCustomDuration.onClick = function () {
+            if (app.project.activeItem && app.project.activeItem instanceof CompItem) {
+                durationEdit.text = "Enter custom duration in seconds"
+            }
+    
+        }
+
 
 
         helpButton.onClick = function () {
@@ -76,10 +107,12 @@
                 return
             };
 
+            
+
             win.close()
             app.beginUndoGroup("createText")
             try {
-                createText(currentComp,textInputEdit.text)
+                createText(currentComp, textInputEdit.text, specCompDuration.value, durationEdit.text, colorFillEdit.text)
             } catch (e) {
                 alert(e)
             } finally {
@@ -105,8 +138,10 @@
 
 
 
-    function hexToRGB(mainColor) {
-        var hexColor = "0x" + mainColor;
+    function hexToRGB(colorInput) {
+        var colorTrim = colorInput.trim();
+        var colorFilter = colorTrim.replace(/[#]/g, "");
+        var hexColor = "0x" + colorFilter;
         var r = hexColor >> 16;
         var g = (hexColor & 0x00ff00) >> 8;
         var b = hexColor & 0xff;
@@ -129,7 +164,8 @@
     }
 
 
-    function createText(comp,textInput) {
+    function createText(comp, textInput, compLength, customDur, colorInput) {
+
 
         var textArray = textInputAmount(comp,textInput);
 
@@ -138,10 +174,13 @@
         var textProp = newText.property("Source Text");
         var textDoc = textProp.value;
         textDoc.resetCharStyle();
-        textDoc.fontSize = 150;
-        textDoc.fillColor = [1,1,1];
+            textDoc.fontSize = 150;
+            if (colorInput == "") {
+                textDoc.fillColor = [1, 1, 1];
+            } else {
+                textDoc.fillColor = hexToRGB(colorInput);
+            }
         textDoc.strokeWidth = 2;
-        textDoc.font = "ProximaNova-Regular";
         textDoc.applyStroke = false;
         textDoc.applyFill = true;
         textDoc.justification = ParagraphJustification.CENTER_JUSTIFY;
@@ -154,8 +193,13 @@
         var textHeight = layerSize.top + layerSize.height/2;
         textAnchor.setValue([textWidth, textHeight]);
 
+            if (compLength.value == true) {
+                var rangeDuration = comp.duration;
+            } else {
+                rangeDuration = parseFloat(customDur)
+            }
 
-        var textDuration = comp.duration/textArray.length;
+            var textDuration = rangeDuration/textArray.length;
 
         newText.inPoint = (i)*textDuration;
         newText.outPoint = newText.inPoint + textDuration;
