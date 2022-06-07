@@ -33,6 +33,18 @@
         var textInputStatic = textInputGroup.add("statictext", undefined, "Text Input:");
         var textInputEdit = textInputGroup.add("edittext", [0, 0, 150, 100], "Enter Text Here", {multiline: true, scrollable: true});
         textInputEdit.characters = editcharacters;
+
+        var specsGroup = inputTab.add("panel", undefined);
+        specsGroup.orientation = 'column';
+        specsGroup.alignChildren = ["fill", "top"];
+        var specDurGroup = specsGroup.add("group", undefined, "Spec Duration Group");
+        specDurGroup.orientation = 'row';
+        var specCompDuration = specDurGroup.add("radiobutton", undefined, "\u00A0Use Comp Duration");
+        specCompDuration.value = true;
+        var specCustomDuration = specDurGroup.add("radiobutton", undefined, "\u00A0Use Custom Duration");
+        var durationEdit = specsGroup.add("edittext", undefined);
+        durationEdit.characters = editcharacters;
+        
         
         
         var styleTab = tpanel.add("tab", undefined, "Style");
@@ -67,7 +79,7 @@
             win.close()
             app.beginUndoGroup("createText")
             try {
-                createText(currentComp,textInputEdit.text, mainColorHexEdit.text, fillStrokeCheckbox.value, altColors.value, altColorHexEdit.text, numCopiesEdit.text)
+                createText(currentComp,textInputEdit.text)
             } catch (e) {
                 alert(e)
             } finally {
@@ -102,38 +114,38 @@
     }
 
 
-    function createText(comp,textInput, mainColor, fillStroke, colorOptions, altColor, numCopies) {
-        var newText = comp.layers.addText(textInput);
+    function textInputAmount(comp,textInput){
+        var textTrim = textInput.trim();
+        var textList = textTrim;
+        var textSplit = textList.split("\n");
+        var textArray = new Array();
+
+        for(var i = 0; i<textSplit.length;i++){
+            textArray.push(textSplit[i]);
+        }
+
+        return textArray
+
+    }
+
+
+    function createText(comp,textInput) {
+
+        var textArray = textInputAmount(comp,textInput);
+
+        for(var i = 0; i<textArray.length; i++){
+        var newText = comp.layers.addText(textArray[i].toString());
         var textProp = newText.property("Source Text");
         var textDoc = textProp.value;
         textDoc.resetCharStyle();
         textDoc.fontSize = 150;
-        textDoc.fillColor = hexToRGB(mainColor);
-        textDoc.strokeColor = hexToRGB(mainColor);
+        textDoc.fillColor = [1,1,1];
         textDoc.strokeWidth = 2;
         textDoc.font = "ProximaNova-Regular";
-        textDoc.strokeOverFill = true;
-        if (fillStroke == true) {
-            textDoc.applyStroke = false;
-            textDoc.applyFill = true;
-        } else {
-            textDoc.applyStroke = true;
-            textDoc.applyFill = false;
-        }
+        textDoc.applyStroke = false;
+        textDoc.applyFill = true;
         textDoc.justification = ParagraphJustification.CENTER_JUSTIFY;
         textProp.setValue(textDoc);
-
-                var numCopiesSlider = newText.property("ADBE Effect Parade").addProperty("ADBE Slider Control");
-        numCopiesSlider.name = "Num Copies";
-        numCopiesSlider.property(1).setValue(parseInt(numCopies));
-        
-        textProp.expression = 
-        's = myText = value + "\\n";\
-        numCopies = effect("Num Copies")(1);\
-        for(i = 1; i<numCopies; i++){\
-            s += myText\
-        }\
-        s'
         
         var layerSize = newText.sourceRectAtTime(0, true);
         var transProp = newText.property("ADBE Transform Group");
@@ -143,6 +155,12 @@
         textAnchor.setValue([textWidth, textHeight]);
 
 
+        var textDuration = comp.duration/textArray.length;
+
+        newText.inPoint = (i)*textDuration;
+        newText.outPoint = newText.inPoint + textDuration;
+
+        }
         return comp.layer(textInput)
 
     }
