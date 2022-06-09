@@ -214,8 +214,12 @@
             newText.inPoint = (i)*textDuration;
             newText.outPoint = newText.inPoint + textDuration;
             
-        
-        
+            var textAnimator = newText.property("Text").property("Animators").addProperty("ADBE Text Animator");
+            var 
+
+        app.project.item(1).layer("ahsdlnsalkdn").property("Text")
+        .property("Animators").property("Animate - On - Up")
+        .property("Selectors").property("Range Selector 1").property("Offset")
 
             
         }
