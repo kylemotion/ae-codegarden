@@ -64,7 +64,12 @@
         colorFillEdit.alignment = ["fill", "top"];
         colorFillEdit.characters = editcharacters;
 
-
+        var animStyle = styleTab.add("panel", undefined, "Animation Style");
+        animStyle.orientation = 'row';
+        var characterBasedButton = animStyle.add("radiobutton", undefined, "\u00A0By Characters");
+        characterBasedButton.value = true;
+        var wordBasedButton = animStyle.add("radiobutton", undefined, "\u00A0By Word");
+        
         
         var applyGroup = win.add("group", undefined, "apply group");
         applyGroup.orientation = 'row';
@@ -112,7 +117,7 @@
             win.close()
             app.beginUndoGroup("createText")
             try {
-                createText(currentComp, textInputEdit.text, specCompDuration.value, durationEdit.text, colorFillEdit.text)
+                createText(currentComp, textInputEdit.text, specCompDuration.value, durationEdit.text, colorFillEdit.text, characterBasedButton.value)
             } catch (e) {
                 alert(e)
             } finally {
@@ -163,7 +168,7 @@
 
     }
 
-    function createText(comp, textInput, compLength, customDur, colorInput) {
+    function createText(comp, textInput, compLength, customDur, colorInput, basedOnButton) {
 
 
         var textArray = textInputAmount(comp,textInput);
@@ -214,14 +219,42 @@
             newText.inPoint = (i)*textDuration;
             newText.outPoint = newText.inPoint + textDuration;
             
-            var textAnimator = newText.property("Text").property("Animators").addProperty("ADBE Text Animator");
-            var 
+            var textAnimatorStart = newText.property("Text").property("Animators").addProperty("ADBE Text Animator");
+            textAnimatorStart.name = "Animate-On";
+            // add  range selector;
+            var rangeSelectorStart = textAnimatorStart("ADBE Text Selectors").addProperty("ADBE Text Selector");
+            rangeSelectorStart.property("Offset").setValuesAtTimes([newText.inPoint, newText.inPoint + .5],[-100,100]);
+            var advancedPropsStart = rangeSelectorStart.property("Advanced");
+            var basedOnStart = advancedPropsStart.property("Based On");
+            if(basedOnButton == true){
+                basedOnStart.setValue(1);
+            } else {
+                basedOnStart.setValue(3);
+            }
+            advancedPropsStart.property("Shape").setValue(2);
+            advancedPropsStart.property("Ease Low").setValue(100);
+            var animPropertiesStart = textAnimatorStart("ADBE Text Animator Properties");
+            var textAnimPosStart = animPropertiesStart.addProperty("ADBE Text Position 3D");
+            textAnimPosStart.setValue([0,layerSize.height]);
 
-        app.project.item(1).layer("ahsdlnsalkdn").property("Text")
-        .property("Animators").property("Animate - On - Up")
-        .property("Selectors").property("Range Selector 1").property("Offset")
-
-            
+            var textAnimatorEnd = newText.property("Text").property("Animators").addProperty("ADBE Text Animator");
+            textAnimatorEnd.name = "Animate-Off";
+            // add  range selector;
+            var rangeSelectorEnd = textAnimatorEnd("ADBE Text Selectors").addProperty("ADBE Text Selector");
+            rangeSelectorEnd.property("Offset").setValuesAtTimes([newText.outPoint - .5, newText.outPoint],[-100,100]);
+            var advancedPropsEnd = rangeSelectorEnd.property("Advanced");
+            var basedOnEnd = advancedPropsEnd.property("Based On");
+            if(basedOnButton == true){
+            basedOnEnd.setValue(1);
+            } else {
+                basedOnEnd.setValue(3);
+            }
+            advancedPropsEnd.property("Shape").setValue(3);
+            advancedPropsEnd.property("Ease High").setValue(30);
+            advancedPropsEnd.property("Ease Low").setValue(100);
+            var animPropertiesEnd = textAnimatorEnd("ADBE Text Animator Properties");
+            var textAnimPosEnd = animPropertiesEnd.addProperty("ADBE Text Position 3D");
+            textAnimPosEnd.setValue([0,-layerSize.height]);
         }
         return comp.layer(textInput)
 
