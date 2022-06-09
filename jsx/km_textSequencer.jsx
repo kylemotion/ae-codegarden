@@ -163,7 +163,6 @@
 
     }
 
-
     function createText(comp, textInput, compLength, customDur, colorInput) {
 
 
@@ -185,6 +184,8 @@
         textDoc.applyFill = true;
         textDoc.justification = ParagraphJustification.CENTER_JUSTIFY;
         textProp.setValue(textDoc);
+            
+
         
         var layerSize = newText.sourceRectAtTime(0, true);
         var transProp = newText.property("ADBE Transform Group");
@@ -199,11 +200,24 @@
                 rangeDuration = parseFloat(customDur)
             }
 
-            var textDuration = rangeDuration/textArray.length;
+            
+            var textDuration = rangeDuration / textArray.length;
+        
+            var maskAdd = newText.Masks.addProperty("Mask");
+            var maskShape = maskAdd.property("maskShape");
+            var myShape = maskShape.value;
 
-        newText.inPoint = (i)*textDuration;
-        newText.outPoint = newText.inPoint + textDuration;
+            myShape.vertices = [[layerSize.left, layerSize.top], [layerSize.width + layerSize.left, layerSize.top], [layerSize.width + layerSize.left, layerSize.top + layerSize.height], [layerSize.left, layerSize.top + layerSize.height]];
+            myShape.closed = true;
+            maskShape.setValue(myShape);
 
+            newText.inPoint = (i)*textDuration;
+            newText.outPoint = newText.inPoint + textDuration;
+            
+        
+        
+
+            
         }
         return comp.layer(textInput)
 
