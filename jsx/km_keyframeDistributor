@@ -34,7 +34,7 @@
             }
 
             try {
-                distributeKeyframes(activeComp, compDuration.value)
+                distributeKeyframes(compDuration.value)
             } catch (e) {
                 alert(e)
             } finally {
@@ -57,18 +57,17 @@
     }
 
 
-    // function getKeyframeSelection(comp) {
-    //     var selectedLayer = comp.selectedLayers;
-    //     var selectedProps = selectedLayer[0].selectedProperties;
-    //     var keyframeSelection = selectedProps[0].selectedKeys;
+    function getPropertySelection() {
+        var comp = app.project.activeItem;
+        var selectedLayer = comp.selectedLayers;
+        var selectedProps = selectedLayer[0].selectedProperties;
 
-    //     return keyframeSelection
+        return selectedProps
 
-    // }
+    }
 
     function collectKeyframeValues() {
-        var comp = app.project.activeItem;
-        var selectedProps = comp.selectedProperties;
+        var selectedProps = getPropertySelection();
         var keyframeValArray = new Array();
 
         var keys = selectedProps[0].numKeys;
@@ -76,7 +75,7 @@
         for (var i = 1; i <= keys; i++){
             keyframeValArray.push(selectedProps[0].keyValue(i))
         }
-        return alert(keyframeValArray)
+        return keyframeValArray
     }
 
     var keyframeValArray = collectKeyframeValues();
@@ -84,7 +83,7 @@
     
     function collectKeyframeTimes(compDuration) {
         var comp = app.project.activeItem;
-        var selectedProps = comp.selectedProperties;
+        var selectedProps = getPropertySelection();
         var keyFrameTimes = new Array();
 
         var workAreaStart = comp.workAreaStart;
@@ -94,6 +93,7 @@
         } else {
             duration = workAreaStart + workAreaEnd
         }
+        
         var keys = selectedProps[0].numKeys;
         var keyDiff = duration / keys;
         for (var i = 1; i <= keys; i++){
@@ -106,27 +106,26 @@
     }
 
 
-    function removeKeyframes(comp) {
-        var comp = app.project.activeItem;
-        var selectedProps = comp.selectedProperties;
+    function removeKeyframes() {
+        var selectedProps = getPropertySelection();
 
-        var keys = selectedProps[0].numKeys;
+        var keys = selectedProps[0].selectedKeys;
         alert(keys)
 
         if (selectedProps[0] instanceof Property) {
-            while (keys) {
-                selectedProps[0].removeKey(1)
+            for (var i = 0; i < keys.length; i++){
+                selectedProps[0].removeKey(keys[i]-i)
             }
         }
         return selectedProps[0]
 
 
     }
-    function distributeKeyframes(comp, compDuration) {
-        var selectedProps = comp.selectedProperties;
+    function distributeKeyframes(compDuration) {
+        var selectedProps = getPropertySelection();
         var keyFrameTimes = collectKeyframeTimes(compDuration);
 
-        removeKeyframes(comp)
+        removeKeyframes()
 
         selectedProps[0].setValuesAtTimes(keyFrameTimes, keyframeValArray);
 
