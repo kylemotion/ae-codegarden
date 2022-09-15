@@ -106,8 +106,6 @@
 
     }
 
-
-
     function hexToRGB(mainColor) {
         var hexColor = "0x" + mainColor;
         var r = hexColor >> 16;
