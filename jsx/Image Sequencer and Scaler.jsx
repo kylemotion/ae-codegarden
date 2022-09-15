@@ -65,9 +65,16 @@ function addImagesToComp() {
         addedImages.inPoint = (n) * imageDuration;
         addedImages.outPoint = addedImages.inPoint + imageDuration;
 
+        var scaleSliderAdd = addedImages.property("ADBE Effect Parade").addProperty("ADBE Slider Control");
+        var sliderControl = scaleSliderAdd.property("Slider");
+        var sliderVal = sliderControl.setValue(3);
+        scaleSliderAdd.name = "Scale Percentage Added (%)";
+
+        imageScale.expression = 'scaleSlider = thisLayer.effect(1)(1);\
+        s = linear(time,thisLayer.inPoint, thisLayer.outPoint, value[0], value[0] + scaleSlider);\
+        [s,s]'
 
     }
-
 
 }
 
