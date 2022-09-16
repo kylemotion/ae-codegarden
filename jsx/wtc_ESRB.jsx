@@ -79,7 +79,7 @@
         var shortFormDur = 2;
         var longFormDur = 4;
         
-        if (esrbComp.containingComp.duration < 15) {
+        if (esrbComp.containingComp.duration <= 15) {
             esrbComp.outPoint = esrbComp.inPoint + shortFormDur
         } else {
             esrbComp.outPoint = esrbComp.inPoint + longFormDur
