@@ -103,17 +103,18 @@
 
         var controlsDropdown = controlsLayer.property("ADBE Effect Parade").addProperty("ADBE Dropdown Control");
         var controlsMenu = controlsDropdown.property(1);
-        // activeComp.openInEssentialGraphics();
-        // if(controlsMenu.canAddToMotionGraphicsTemplate()){
-        //     alert("true")
-        // } else {
-        //     alert("false")
-        // }
         
         controlsDropdown.property(1).addToMotionGraphicsTemplateAs(activeComp, "ESRB Selection");
         controlsMenu.setPropertyParameters(layerSelNames);
-        alert(controlsDropdown.name);
-        
+
+        for(var n = 0; n<layerSelection.length; n++){
+            var layerOpacity = layerSelection[n].property("ADBE Transform Group").property("ADBE Opacity");
+            layerOpacity.expression = 'id = thisLayer.index - 1;\
+            layerSel = thisComp.layer("Controls").effect(1)(1);\
+            id == layerSel ? 100 : 0';
+            
+        }
+
         return
     }
 
