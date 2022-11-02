@@ -11,7 +11,7 @@
 
     var scriptName = "wtc_ESRB";
     var proj = app.project;
-
+    var activeComp = proj.activeItem;
 
     createUI(thisObj);
 
@@ -26,11 +26,22 @@
         win.orientation = 'column';
         win.alignChildren = ["fill", "top"];
 
+        var dropdownRow = win.add("group", undefined, "dropdown layers");
+        dropdownRow.alignChildren = ["fill", "fill"];
+        var dropdownButton = dropdownRow.add("button", undefined, "Setup Dropdown Controls")
+
+
         var durationRow = win.add("group", undefined, "duration row");
-        durationRow.alignChildren = ["left", "top"];
+        durationRow.alignChildren = ["fill", "fill"];
         var durationButton = durationRow.add("button", undefined, "ESRB Duration");
         
         
+        dropdownButton.onClick = function(){
+            app.beginUndoGroup("Dropdown Button");
+                createControlsLayer()
+            app.endUndoGroup()
+        }
+
         durationButton.onClick = function () {
             app.beginUndoGroup("Duration Button");
                 esrbLayerDuration()
@@ -52,7 +63,7 @@
     };
 
     function getCurrentCompInProj() {
-        var activeComp = proj.activeItem;
+        
 
         if (!(activeComp && activeComp instanceof CompItem)) {
             alert("Select or open your ESRB-EN comp first");
@@ -63,10 +74,54 @@
 
     }
 
-    function esrbLayerDuration() {
-        var activeComp = getCurrentCompInProj();
+    function getCurrentLayers(){
+        var compLayerSelection = activeComp.selectedLayers;
+        if(compLayerSelection.length < 1){
+            alert("Select atleast 1 layer first. Try again")
+            return
+        } else {
+            return compLayerSelection
+        }
+    }
 
-        var selLayers = activeComp.selectedLayers;
+    function createControlsLayer(){
+        var compLayers = activeComp.layers;
+        var layerSelection = getCurrentLayers();
+        var layerSelNames = new Array();
+
+        for(var i = 0; i<layerSelection.length;i++){
+            layerSelNames.push(layerSelection[i].name);
+        }
+
+
+        if(!(activeComp.layer("Controls"))){
+            var controlsLayer = activeComp.layers.addShape();
+            controlsLayer.name = "Controls";
+        } else {
+            var controlsLayer = activeComp.layer("Controls") 
+        }
+
+        var controlsDropdown = controlsLayer.property("ADBE Effect Parade").addProperty("ADBE Dropdown Control");
+        var controlsMenu = controlsDropdown.property(1);
+        // activeComp.openInEssentialGraphics();
+        // if(controlsMenu.canAddToMotionGraphicsTemplate()){
+        //     alert("true")
+        // } else {
+        //     alert("false")
+        // }
+        
+        controlsDropdown.property(1).addToMotionGraphicsTemplateAs(activeComp, "ESRB Selection");
+        controlsMenu.setPropertyParameters(layerSelNames);
+        alert(controlsDropdown.name);
+        
+        return
+    }
+
+
+
+    function esrbLayerDuration() {
+
+        var selLayers = getCurrentCompInProj().selectedLayers;
 
             if (selLayers.length == 1 && selLayers[0].source instanceof CompItem) {
                 var esrbComp = selLayers[0];
@@ -88,6 +143,5 @@
         return
 
     }
-
 
 }) (this)
