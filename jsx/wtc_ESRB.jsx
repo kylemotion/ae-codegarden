@@ -142,13 +142,10 @@
             }
         
         esrbComp.timeRemapEnabled = true;
-        
+
         var shortFormDur = 2;
         var longFormDur = 4;
         var timeRemap = esrbComp.property("Time Remap");
-        timeRemap.setValueAtTime(esrbComp.inPoint, 0);
-        timeRemap.removeKey(2)
-        timeRemap.setInterpolationTypeAtKey(1, KeyframeInterpolationType.HOLD);
         
         if (esrbComp.containingComp.duration <= 15) {
             esrbComp.outPoint = esrbComp.inPoint + shortFormDur
@@ -156,6 +153,9 @@
             esrbComp.outPoint = esrbComp.inPoint + longFormDur
         }
         
+        timeRemap.setValueAtTime(esrbComp.inPoint, 0);
+        timeRemap.removeKey(2)
+        timeRemap.setInterpolationTypeAtKey(1, KeyframeInterpolationType.HOLD);
 
         return
 
