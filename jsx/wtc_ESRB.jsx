@@ -104,6 +104,8 @@
         }
 
 
+
+
         if(!(activeComp.layer("Controls"))){
             var controlsLayer = activeComp.layers.addShape();
             controlsLayer.name = "Controls";
@@ -118,10 +120,20 @@
         controlsMenu.setPropertyParameters(layerSelNames);
 
         for(var n = 0; n<layerSelection.length; n++){
-            var layerOpacity = layerSelection[n].property("ADBE Transform Group").property("ADBE Opacity");
+            var layerTrans = layerSelection[n].property("ADBE Transform Group");
+            var layerAnchorPoint = layerTrans.property("ADBE Anchor Point");
+            var layerSourceRect = layerSelection[n].sourceRectAtTime(layerSelection[n].containingComp.time,false);
+            layerAnchorPoint.setValue([layerSourceRect.left,layerSourceRect.top + layerSourceRect.height,0]);
+            var layerPos = layerTrans.property("ADBE Position");
+            layerPos.setValue([0,activeComp.height]);
+            
+            var layerOpacity = layerTrans.property("ADBE Opacity");
             layerOpacity.expression = 'id = thisLayer.index - 1;\
             layerSel = thisComp.layer("Controls").effect(1)(1);\
             id == layerSel ? 100 : 0';
+
+            layerSelection[n].collapseTransformation = true;
+
             
         }
 
