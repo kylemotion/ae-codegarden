@@ -1,6 +1,6 @@
 /**
  * 
- * a script to change length of ESRB comps
+ * a script to change length of ESRB comps and setup esrb comps with essential properties
  * 
  * 
  * 
@@ -26,14 +26,20 @@
         win.orientation = 'column';
         win.alignChildren = ["fill", "top"];
 
-        var dropdownRow = win.add("group", undefined, "dropdown layers");
+        var dropdownRow = win.add("panel", undefined, "Setup ESRB Controls");
         dropdownRow.alignChildren = ["fill", "fill"];
         var dropdownButton = dropdownRow.add("button", undefined, "Setup Dropdown Controls")
 
 
-        var durationRow = win.add("group", undefined, "duration row");
+        var durationRow = win.add("panel", undefined, "Change duration ESRB Comp");
         durationRow.alignChildren = ["fill", "fill"];
         var durationButton = durationRow.add("button", undefined, "ESRB Duration");
+
+        var helpGroup = win.add("group", undefined, "Help Me Button");
+        helpGroup.alignChildren = ["right", "fill"];
+        var helpButton = helpGroup.add("button", undefined, "How do I work?");
+        
+
         
         
         dropdownButton.onClick = function(){
@@ -46,6 +52,10 @@
             app.beginUndoGroup("Duration Button");
                 esrbLayerDuration()
             app.endUndoGroup()
+        }
+
+        helpButton.onClick = function (){
+            alert(helpMeDirections())
         }
 
         win.onResizing = win.onResize = function () {
@@ -132,17 +142,35 @@
             }
         
         esrbComp.timeRemapEnabled = true;
+        
         var shortFormDur = 2;
         var longFormDur = 4;
+        var timeRemap = esrbComp.property("Time Remap");
+        timeRemap.setValueAtTime(esrbComp.inPoint, 0);
+        timeRemap.removeKey(2)
+        timeRemap.setInterpolationTypeAtKey(1, KeyframeInterpolationType.HOLD);
         
         if (esrbComp.containingComp.duration <= 15) {
             esrbComp.outPoint = esrbComp.inPoint + shortFormDur
         } else {
             esrbComp.outPoint = esrbComp.inPoint + longFormDur
         }
+        
 
         return
 
     }
+
+    function helpMeDirections(){
+        var helpMeText = 
+        'How do I work?\r1. Setup ESRB Controls\r\r- Place your ESRB logos in a new comp. Make sure the comp is set to 4 seconds.\r- Select your ESRB logos inside of the comp from Top > Down.\r- Click Setup Dropdown Controls Button.\r-Boom! Your controls are now setup on your control layer and in your essential graphics panel.\r\r\
+        2. ESRB Duration\r\r- Select your ESRB precomp layer that is located in your parent comp.\r- Press ESRB Duration button.\r- Boom! Your precomp layer will automatically adjust its duration based on the parent comp duration.\r\r\
+        You are also free to use the Essential Properties on the outside of the ESRB precomp to select your preferred ESRB logo.'
+
+        return helpMeText
+
+
+    }
+
 
 }) (this)
