@@ -27,7 +27,7 @@ function copyLayerMarkers(fromLayer,toLayers){
         newMarker.url = markerKeyVal.url;
         newMarker.label = markerKeyVal.label;
         newMarker.protectedRegion = markerKeyVal.protectedRegion;
-        for(var n = 0; n<activeComp.selectedLayers.length; n++){
+        for(var n = 1; n<activeComp.selectedLayers.length; n++){
             toLayers[n].marker.setValueAtTime(toLayers[n].inPoint + fromLayerMarkers.keyTime(i), newMarker)
         }
     }
@@ -40,6 +40,8 @@ function copyLayerMarkers(fromLayer,toLayers){
     }
 
 }
+
+
 function copyCompMarkers(fromComp,toComps){
 
     for(var b = 0; b < proj.selection.length; b++){
@@ -49,10 +51,10 @@ function copyCompMarkers(fromComp,toComps){
             return
         }
 
-        // if(proj.selection.length < 2){
-        //     alert("Please select atleast 2 comps first.\r\Select the comp with the markers to be copied first. Then select the comp you want to paste the markers to.")
-        //     return
-        // }
+        if(proj.selection.length < 1){
+            alert("Please select atleast 1 comp first.\r\Open the comp with the markers to be copied first. Then select the comp in the project panel that you want to paste the markers to.")
+            return
+        }
     
 
     var newMarker;
@@ -69,27 +71,25 @@ function copyCompMarkers(fromComp,toComps){
         newMarker.frameTarget = markerKeyVal.frameTarget;
         newMarker.url = markerKeyVal.url;
         newMarker.label = markerKeyVal.label;
-        newMarker.protectedRegion = markerKeyVal.protectedRegion;  
+        newMarker.protectedRegion = markerKeyVal.protectedRegion;
         toComps[b].markerProperty.setValueAtTime(fromCompMarkers.keyTime(i), newMarker)
         
     }
 
-}
+    }
     return
         
 }
 
 app.beginUndoGroup("Copy Markers");
 
+    var keyState = ScriptUI.environment.keyboardState;
 
-// copyLayerMarkers(activeComp.selectedLayers[0],activeComp.selectedLayers)
-// copyCompMarkers(proj.selection[0],proj.selection)
-
-// alert(proj.selection[1].name)
-
-for(var b = 0; b < proj.selection.length; b++){
-    alert(proj.selection[b].name)
-}
+    if(keyState.shiftKey){
+        copyCompMarkers(proj.activeItem,proj.selection)
+    } else {
+        copyLayerMarkers(activeComp.selectedLayers[0],activeComp.selectedLayers)
+    }
 
 app.endUndoGroup();
 
