@@ -1,55 +1,32 @@
-var currentComp = app.project.activeItem;
 
-function getMoney(color, name, width, height, pixelAspect){
-    for(var i = 0; i < proj.selection.length; i++){
-        if(proj.selection[i] instanceof CompItem){
-            proj.selection[i].layers.addSolid(color,name, width, height, pixelAspect)
-            
-        }
-    }
-}
+var proj = app.project;
 
+function activeComp(){
+    var activeComp = proj.activeItem;
 
-function getComp() {
-    if (!(currentComp && currentComp instanceof CompItem)) {
-        alert("Open up a comp first")
-        return
+    if(activeComp instanceof CompItem){
+        return activeComp
     } else {
-        return currentComp
+        alert("Your fucked")
+        return
     }
 }
 
-function textAdd() {
-    var activeComp = getComp();
-
-    var newNull = activeComp.layers.addNull();
-    newNull.name = "Fuck Me";
-    newNull.threeDLayer = true;
-    var distanceSlider = newNull.property("ADBE Effect Parade").addProperty("Slider Control");
-    distanceSlider.name = "fuckin Distance mate";
-
-
-    var newCam = activeComp.layers.addCamera("Double Fuck", [960, 540]);
-    newCam.parent = newNull;
+function compGuides(){
+    var compWidth = activeComp().width;
+    var compHeight = activeComp().height;
     
-    for (var i = 1; i <= 10; i++){
-        var newText = activeComp.layers.addText("Fack");
-        newText.name = "fuck-" + i;
-        newText.threeDLayer = true;
-        var text3DPos = newText.property("ADBE Transform Group").property("ADBE Position");
+    for(var i = 1; i <= 2; i++){
+        activeComp().addGuide(0, [(compHeight/3)*i]);
+        activeComp().addGuide(1, [(compWidth/3)*i]);
 
-        text3DPos.expression = 'var distanceSlider = thisComp.layer("Fuck Me").effect("fuckin Distance mate")(1);\
-        [960, 540, distanceSlider * '+i+']';
     }
-    newCam.moveToBeginning();
-    newNull.moveToBeginning();
 
-    return
-
+    return activeComp()
 }
 
-app.beginUndoGroup("Yolo");
+app.beginUndoGroup("FUCK");
 
-textAdd()
+compGuides()
 
 app.endUndoGroup()
