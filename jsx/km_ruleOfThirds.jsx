@@ -7,7 +7,7 @@ function activeComp(){
     if(activeComp instanceof CompItem){
         return activeComp
     } else {
-        alert("Your fucked")
+        alert("Select a comp first!")
         return
     }
 }
@@ -25,8 +25,13 @@ function compGuides(){
     return activeComp()
 }
 
-app.beginUndoGroup("FUCK");
+app.beginUndoGroup("rule of thirds");
 
-compGuides()
+if(app.project.activeItem instanceof CompItem){
+    compGuides()
+} else {
+    alert("Select a comp first!")
+}
+
 
 app.endUndoGroup()
