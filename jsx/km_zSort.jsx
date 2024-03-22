@@ -18,11 +18,18 @@
         win.alignChildren = ["left", "top"];
 
 
+        var sortStart = win.add("group", undefined, "Z Sort Start");
+        sortStart.alignChildren = ["fill", "fill"];
+        var zSortStartStatic = sortStart.add("statictext", undefined, "Z Sort Start: ");
+        var zSortStartEdit = sortStart.add("edittext", undefined, "0");
+        zSortStartEdit.characters = editCharacters;
+
         var sortDistance = win.add("group", undefined, "Z Sort");
         sortDistance.alignChildren = ["fill", "fill"];
         var zSortStatic = sortDistance.add("statictext", undefined, "Z Sort: ");
         var zSortEdit = sortDistance.add("edittext", undefined, "0");
         zSortEdit.characters = editCharacters;
+
     
         var sortGroup = win.add("group", undefined, "sort group");
         sortGroup.orientation = 'row';
@@ -40,7 +47,7 @@
                 return
             };
 
-            if(isNaN(zSortEdit.text)){
+            if(isNaN(zSortEdit.text) || isNaN(zSortStartEdit.text)){
                 alert("Enter a number!")
                 return
             }
@@ -53,7 +60,7 @@
             win.close();
             app.beginUndoGroup("z sort")
             try{
-                sort3D(parseInt(zSortEdit.text))
+                sort3D(parseInt(zSortEdit.text),parseInt(zSortStartEdit.text))
             } catch(e) {
                 alert(e)
             } finally {
@@ -100,13 +107,16 @@ function selLayer(){
 }
 
 
-function sort3D(z){
+function sort3D(sort, start){
     var layerRange = selLayer();
-var userInput = z;
+    var userInput = sort;
+    
     for(var n = 0; n<layerRange.length; n++){
         layerRange[n].threeDLayer = true;
-        layerRange[n].property("ADBE Transform Group").property("ADBE Position").setValue([value[0],value[1],userInput * n]);
-        
+        var pos = layerRange[n].property("ADBE Transform Group").property("ADBE Position").value;
+        pos[2] = start + userInput * n;
+        layerRange[n].property("ADBE Transform Group").property("ADBE Position").setValue(pos);
+
     }
     
     return
