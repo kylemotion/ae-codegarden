@@ -20,6 +20,7 @@ if (!(comp && comp instanceof CompItem)) {
     return;
 }
 
+
 var layers = comp.selectedLayers;
 
   if (layers.length === 0) {
@@ -30,14 +31,6 @@ var layers = comp.selectedLayers;
 
   app.beginUndoGroup("ScaleUp");
 
-  const comp  = activeComp();
-  const layers = comp.selectedLayers;
-
-      if (layers.length === 0) {
-          alert("Please select some layers!");
-          return;
-        }
-
 const scaleLayers = layers;
     
 
@@ -45,8 +38,8 @@ const scaleLayers = layers;
         var scaleProp = scaleLayers[i].property("ADBE Transform Group").property("ADBE Scale");
         var scaleVal = scaleProp.value;
         var layerIn = scaleLayers[i].inPoint;
-        var frameDur1 = 10 * activeComp().frameDuration;
-        var frameDur2 = 15 * activeComp().frameDuration;
+        var frameDur1 = 10 * comp.frameDuration;
+        var frameDur2 = 15 * comp.frameDuration;
 
         var scaleTimesOvershoot = [layerIn, layerIn + frameDur1,layerIn + frameDur2];
         var scaleValuesOvershoot = [[0,0], [scaleVal[0] + 5, scaleVal[1]+5], scaleVal];
@@ -58,6 +51,8 @@ const scaleLayers = layers;
         var easeOut = new KeyframeEase(0,33.33333);
         var easeMid = new KeyframeEase(0,70);
         var easeIn = new KeyframeEase(0,70);
+
+
 
 
         for(var n = scaleProp.numKeys; n!=0; n--){
