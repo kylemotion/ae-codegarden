@@ -1,7 +1,7 @@
 /**
  * Takes a string input and converts that to markers on a selected layer separated by words that are distributed at even intervals
  * @author: Kyle Harter <kylenmotion@gmail.com>
- * @version 0.1.0
+ * @version 0.1.1
  * 
  * 
  * 
@@ -30,6 +30,12 @@
     textFieldGroup.orientation = 'column';
     const textEditField = textFieldGroup.add("EditText", undefined, 'Add your text to be converted here', {multiline: true, scrolling: true});
     textEditField.size = [200, 200];
+
+    const basedOnGroup = mainTextGroup.add("group", undefined, "Based On Group");
+    basedOnGroup.orientation = 'row';
+    const basedOnText = basedOnGroup.add("StaticText", undefined, "Based on: ");
+    const basedOnDropdown = basedOnGroup.add("DropDownList", undefined,["Words", "Lines", "Characters", "Characters Excluding Spaces"])
+    basedOnDropdown.selection = 0;
 
     const applyGroup = mainTextGroup.add("group", undefined, "Apply Group");
     applyGroup.orientation = 'row';
@@ -64,7 +70,9 @@
 
         // WILL BE FINAL FUNCTION: 
 
-        applyMarkers(curLayerSel, textEditField.text)
+        const shiftHeld = ScriptUI.environment.keyboardState.shiftKey;
+
+            applyMarkers(shiftHeld,activeComp, curLayerSel, textEditField.text, basedOnDropdown.selection)
         
         win.close();
         app.endUndoGroup();
@@ -72,16 +80,32 @@
     }
 
     helpButton.onClick = function(){
-        alert("Help FUCK")
+        alert("Click Apply to run script")
     }
 
 
 
-    function applyMarkers(layers, textInput){
-        const textSplit = textInput.split(" ");
+    function applyMarkers(shift,comp, layers, textInput, dropDownSel){
+            
+        if(dropDownSel == 0){
+            var textSplit = textInput.split(" ");
+        }else if(dropDownSel == 1){
+            var textSplit = textInput.split(/\r?\n|\r|\n/g);
+        } else if(dropDownSel == 2){
+            var textSplit = textInput.split("");
+        } else{
+            var charNoSpace = textInput.replace(/\s/g, '')
+            var textSplit = charNoSpace.split("");
+        }
 
         for(var i=0; i<layers.length; i++){
             
+            // Remove markers by setting num markers to a variable
+            for(var m=layers[i].marker.numKeys; m!=0; m--){
+                layers[i].marker.removeKey(m)
+            } 
+                
+    
             var layersDuration = layers[i].outPoint - layers[i].inPoint;
             
             var markerDistance = layersDuration/textSplit.length;
@@ -91,17 +115,17 @@
             
                 var textMarker = new MarkerValue(textSplit[v]);
                 
-                
-                layers[i].marker.setValueAtTime(layers[i].inPoint + (v * markerDistance),textMarker);
-                
-                
+                if(!shift){
+                    layers[i].marker.setValueAtTime(layers[i].inPoint + (v * markerDistance),textMarker);
+                } else {
+                    comp.markerProperty.setValueAtTime(layers[i].inPoint + (v * markerDistance),textMarker);
+                }
             }
         }
-
+        
+        return
 
     }
-
-
 
 
 
