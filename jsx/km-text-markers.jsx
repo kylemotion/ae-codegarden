@@ -1,7 +1,7 @@
 /**
  * Takes a string input and converts that to markers on a selected layer separated by words that are distributed at even intervals
  * @author: Kyle Harter <kylenmotion@gmail.com>
- * @version 0.1.1
+ * @version 0.1.2
  * 
  * 
  * 
@@ -41,11 +41,7 @@
     applyGroup.orientation = 'row';
     const applyButton = applyGroup.add("button", undefined, "Apply");
     applyButton.preferredSize = [-1,30];
-    const helpButton = applyGroup.add("button", undefined, "?");
-    helpButton.helpTip = "Click for instructions on how use script"
-    helpButton.preferredSize = [30,30]
-
-
+    applyButton.helpTip = "Click: Apply markers to selected layers.\rShift+Click: Apply markers to beginning of a comp."
 
 
     applyButton.onClick = function(){
@@ -63,27 +59,22 @@
             return
         }
 
+
         if(!curLayerSel.length){
             alert("Select atleast 1 layer to apply markers to");
             return
         }
 
-        // WILL BE FINAL FUNCTION: 
 
         const shiftHeld = ScriptUI.environment.keyboardState.shiftKey;
 
-            applyMarkers(shiftHeld,activeComp, curLayerSel, textEditField.text, basedOnDropdown.selection)
+        
+        applyMarkers(shiftHeld,activeComp, curLayerSel, textEditField.text, basedOnDropdown.selection)        
         
         win.close();
         app.endUndoGroup();
 
     }
-
-    helpButton.onClick = function(){
-        alert("Click Apply to run script")
-    }
-
-
 
     function applyMarkers(shift,comp, layers, textInput, dropDownSel){
             
@@ -115,10 +106,11 @@
             
                 var textMarker = new MarkerValue(textSplit[v]);
                 
-                if(!shift){
-                    layers[i].marker.setValueAtTime(layers[i].inPoint + (v * markerDistance),textMarker);
+                if(shift){
+                        comp.markerProperty.setValueAtTime(v * markerDistance,textMarker);
                 } else {
-                    comp.markerProperty.setValueAtTime(layers[i].inPoint + (v * markerDistance),textMarker);
+                        layers[i].marker.setValueAtTime(layers[i].inPoint + (v * markerDistance),textMarker);
+        
                 }
             }
         }
