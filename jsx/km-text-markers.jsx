@@ -45,7 +45,11 @@
 
 
     applyButton.onClick = function(){
-        app.beginUndoGroup("Apply Button");
+        try {
+            app.beginUndoGroup("Convert text to markers")
+            // code that possibly throws an exception
+          
+        
         const activeComp = app.project.activeItem;
         const curLayerSel = activeComp.selectedLayers;
 
@@ -71,20 +75,38 @@
         
         applyMarkers(shiftHeld,activeComp, curLayerSel, textEditField.text, basedOnDropdown.selection)        
         
-        win.close();
-        app.endUndoGroup();
+    } catch(error) {
+        alert(error)
+      } finally {
+        // this always runs no matter what
+        app.endUndoGroup()
+      }
 
+    
     }
 
     function applyMarkers(shift,comp, layers, textInput, dropDownSel){
             
-        if(dropDownSel == 0){
+        var basedOn = {
+            words: 0,
+            lines: 1,
+            characters: 2,
+            charExSpace: 3,
+        }
+
+
+        if(dropDownSel == basedOn.words){
             var textSplit = textInput.split(" ");
-        }else if(dropDownSel == 1){
+        }
+        if(dropDownSel == basedOn.lines){
             var textSplit = textInput.split(/\r?\n|\r|\n/g);
-        } else if(dropDownSel == 2){
+        }
+        
+        if(dropDownSel == basedOn.characters){
             var textSplit = textInput.split("");
-        } else{
+        }
+        
+        if(dropDownSel == basedOn.charExSpace){
             var charNoSpace = textInput.replace(/\s/g, '')
             var textSplit = charNoSpace.split("");
         }
