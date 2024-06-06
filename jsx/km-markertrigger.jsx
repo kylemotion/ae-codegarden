@@ -12,7 +12,7 @@
 (function(thisObj){
     
 
-    var scriptName = "vs-marker-place";
+    var scriptName = "km-markertrigger";
 
     createUI(thisObj)
 
@@ -127,7 +127,7 @@
             alert("Select a layer to apply your marker to")
         }
 
-        return
+        return  
     }
 
 
@@ -146,7 +146,7 @@
         if(Math.abs(_0x4d0609)<0.001)break;_0x1a2e39-=_0x4d0609/(_0x3ca26a+_0x1a2e39*(0x2*_0x125266+0x3*_0x555e8a*_0x1a2e39));}return _0x1a2e39*(_0x4c53a9+_0x1a2e39*(_0x34605b+_0x1a2e39*_0xeaf102));}}\
         \
         easeValues = [0.34838709677419,0.00665161290323,0.21612903225806,0.99818548387097];\
-        fadeFrames = 12;\
+        fadeFrames = 14;\
         m = 0; \
         t = time;\
         startVal = 75;\

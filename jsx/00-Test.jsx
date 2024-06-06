@@ -49,7 +49,7 @@
             return
         }
 
-        sequenceLayers()
+        collectColorKeyFrames()
 
       } catch(error) {
         alert(error)
@@ -72,6 +72,19 @@
             }
         }
         return keysArray
+        
+    }
+    function collectColorKeyFrames(){
+        var keysArray = new Array();
+        var selLayers = app.project.activeItem.selectedLayers;
+        var keyedProp = selLayers[0].selectedProperties;
+
+        if(keyedProp.numKeys > 0){
+            for(var i = 1; i <= keyedProp.numKeys; i++){
+                keysArray.push(keyedProp.keyTime(i))
+            }
+        }
+        return alert(keyedProp[0].name)
         
     }
 

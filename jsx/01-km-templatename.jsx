@@ -10,6 +10,9 @@
 
 
 (function(thisObj){
+    
+// @include './library/km_functionLibrary.jsx';
+
 
     var scriptName = "Script Name";
 
@@ -38,8 +41,23 @@
 
     applyButton.onClick = function(){
     try {
-        app.beginUndoGroup("What script does")
-        // code that possibly throws an exception
+        app.beginUndoGroup("What script does");
+
+        var activeComp = app.project.activeItem;
+        var curLayerSel = activeComp.selectedLayers;
+
+        if(!(activeComp && activeComp instanceof CompItem)){
+            alert("Please open a comp first")
+            return
+        }
+
+        // if(!curLayerSel.length){
+        //     alert("Select atleast 1 layer first");
+        //     return
+        // }
+
+        name('#98745d')
+
       } catch(error) {
         alert(error)
       } finally {
@@ -49,6 +67,11 @@
       
     }
 
+    
+    function name(hexCode){
+        return alert(hexToRGB(hexCode))
+        
+    }
 
     win.onResizing = win.onResize = function (){
         this.layout.resize();
