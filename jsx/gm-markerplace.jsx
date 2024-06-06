@@ -12,7 +12,7 @@
 (function(thisObj){
     
 
-    var scriptName = "markerPlace";
+    var scriptName = "vs-marker-place";
 
     createUI(thisObj)
 
@@ -32,16 +32,22 @@
 
     var applyGroup = mainGroup.add("group", undefined, "Apply Group");
     applyGroup.orientation = 'row';
-    var applyButton = applyGroup.add("button", undefined, "Apply");
-    applyButton.preferredSize = [-1,30];
-    applyButton.helpTip = "Click: Apply markers to selected layers.\rShift+Click: Apply markers to beginning of a comp."
+    var inButton = applyGroup.add("button", undefined, "In");
+    inButton.preferredSize = [-1,30];
+    inButton.helpTip = "Click: Applies '+IN+' layer marker at CTI."
+    var outButton = applyGroup.add("button", undefined, "Out");
+    outButton.preferredSize = [-1,30];
+    outButton.helpTip = "Click: Applies '+OUT+' layer marker at CTI."
+    var scaleButton = applyGroup.add("button", undefined, "Scale");
+    scaleButton.preferredSize = [-1,30];
+    scaleButton.helpTip = "Click: Applies marker trigger expression to scale property of selected layers."
+
+    var activeComp = app.project.activeItem;
 
 
-    applyButton.onClick = function(){
+    inButton.onClick = function(){
     try {
-        app.beginUndoGroup("What script does");
-
-        var activeComp = app.project.activeItem;
+        app.beginUndoGroup("In Marker Placement");
         
 
         if(!(activeComp && activeComp instanceof CompItem)){
@@ -50,25 +56,11 @@
         }
 
         var markerComment;
-        var keyState = ScriptUI.environment.keyboardState;
-
-
-        if(keyState.shiftKey){
-            markerComment = "OUT"
-        } else {
-            markerComment = "IN"
-        }
-
-        if(keyState.metaKey){
-            addScaleExpression()
-        } else {
+        markerComment = "IN"
             placeMarker(markerComment)
-        }
 
-        
-        
 
-      } catch(error) {
+    } catch(error) {
         alert(error)
       } finally {
         // this always runs no matter what
@@ -76,6 +68,51 @@
       }
       
     }
+
+        
+    outButton.onClick = function(){
+        try {
+            app.beginUndoGroup("Out Marker Placement");
+    
+            
+        if(!(activeComp && activeComp instanceof CompItem)){
+            alert("Please open a comp first")
+            return
+        }
+        
+        var markerComment;
+        markerComment = "OUT";
+        placeMarker(markerComment)
+
+    } catch(error) {
+        alert(error)
+      } finally {
+        // this always runs no matter what
+        app.endUndoGroup()
+      }
+
+    }
+
+    scaleButton.onClick = function(){
+        try {
+            app.beginUndoGroup("In Marker Placement");
+            
+    
+            if(!(activeComp && activeComp instanceof CompItem)){
+                alert("Please open a comp first")
+                return
+            }
+       
+        addScaleExpression();
+    } catch(error) {
+        alert(error)
+      } finally {
+        // this always runs no matter what
+        app.endUndoGroup()
+      }
+    }
+
+
 
     function placeMarker(comment){
         var curComp = app.project.activeItem;
@@ -126,8 +163,13 @@
         }'
 
 
-        for(var i = 0; i<selLayers.length; i++){
-            selLayers[i].property("ADBE Transform Group").property("ADBE Scale").expression = scaleExpression
+
+        if(curComp.selectedLayers.length > 0){
+            for(var i = 0; i<selLayers.length; i++){
+                selLayers[i].property("ADBE Transform Group").property("ADBE Scale").expression = scaleExpression
+            }
+        } else {
+            alert("Select a layer to apply your marker to")
         }
 
         return
