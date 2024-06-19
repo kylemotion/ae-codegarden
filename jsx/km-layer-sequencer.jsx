@@ -78,16 +78,21 @@
             return alert("Select atleast 2 layers first")
         }
 
-        if(isNaN(delayFrames) && delayFrames.trim() != ''){
+        if(isNaN(delayFrames) || delayFrames.trim() == ''){
             return alert("Please enter a number in the text field")
         }
 
+        
+
 
         for(var i = 0; i < curLayerSel.length; i++){
+            var layerDur = curLayerSel[i].outPoint - curLayerSel[i].inPoint;
             if(delayFrames == 1){
-            curLayerSel[i].inPoint  = curLayerSel[i].inPoint + (compFrameRate * i)
+            curLayerSel[i].inPoint  = curLayerSel[i].inPoint + (compFrameRate * i);
+            curLayerSel[i].outPoint = curLayerSel[i].inPoint + layerDur;
             } else { 
                 curLayerSel[i].inPoint  = curLayerSel[i].inPoint + (compFrameRate * i * parseInt(delayFrames))
+                curLayerSel[i].outPoint = curLayerSel[i].inPoint + layerDur;
             }
         }
 
