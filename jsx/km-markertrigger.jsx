@@ -42,23 +42,19 @@
     scaleButton.preferredSize = [-1,30];
     scaleButton.helpTip = "Click: Applies marker trigger expression to scale property of selected layers."
 
-    var activeComp = app.project.activeItem;
+    
+    
 
 
     inButton.onClick = function(){
-    try {
-        app.beginUndoGroup("In Marker Placement");
         
-
-        if(!(activeComp && activeComp instanceof CompItem)){
-            alert("Please open a comp first")
-            return
-        }
-
+        try {
+            app.beginUndoGroup("In Marker Placement");
+        
+        var activeComp = app.project.activeItem;    
         var markerComment;
-        markerComment = "IN"
-            placeMarker(markerComment)
-
+        markerComment = "IN";
+        placeMarker(markerComment, activeComp)
 
     } catch(error) {
         alert(error)
@@ -73,16 +69,11 @@
     outButton.onClick = function(){
         try {
             app.beginUndoGroup("Out Marker Placement");
-    
-            
-        if(!(activeComp && activeComp instanceof CompItem)){
-            alert("Please open a comp first")
-            return
-        }
         
+        var activeComp = app.project.activeItem;    
         var markerComment;
         markerComment = "OUT";
-        placeMarker(markerComment)
+        placeMarker(markerComment, activeComp)
 
     } catch(error) {
         alert(error)
@@ -95,27 +86,22 @@
 
     scaleButton.onClick = function(){
         try {
-            app.beginUndoGroup("In Marker Placement");
-            
-    
-            if(!(activeComp && activeComp instanceof CompItem)){
-                alert("Please open a comp first")
-                return
-            }
-       
-        addScaleExpression();
+            app.beginUndoGroup("Scale Expression");
+
+        var activeComp = app.project.activeItem;    
+        addScaleExpression(activeComp);
     } catch(error) {
         alert(error)
       } finally {
-        // this always runs no matter what
+        // this always runs no matter what  
         app.endUndoGroup()
       }
     }
 
 
 
-    function placeMarker(comment){
-        var curComp = app.project.activeItem;
+    function placeMarker(comment, comp){
+        var curComp = comp;
         var selLayers = curComp.selectedLayers;
         var curTime = curComp.time;
 
@@ -131,8 +117,10 @@
     }
 
 
-    function addScaleExpression(){
-        var curComp = app.project.activeItem;
+    function addScaleExpression(comp){
+        var curComp = comp;
+
+        
         
         var selLayers = curComp.selectedLayers;
         var scaleExpression = 
@@ -144,8 +132,8 @@
         fadeFrames = 14;\
         m = 0; \
         t = time;\
-        startVal = 75;\
-        endVal = 100;\
+        startVal = 100;\
+        endVal = 135;\
         \
         if (marker.numKeys > 0) {\
             m = marker.nearestKey(time).index;\
