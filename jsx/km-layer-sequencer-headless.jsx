@@ -2,7 +2,7 @@
  * 
  * a script to sequence layers based on amount of frames
  * @author: Kyle Harter <kylenmotion@gmail.com>
- * @version 0.1.0
+ * @version 0.1.1
  * 
  * 
  * 
@@ -43,8 +43,7 @@
 
         for(var i = 0; i < curLayerSel.length; i++){
             var layerDur = curLayerSel[i].outPoint - curLayerSel[i].inPoint;
-            curLayerSel[i].inPoint  = curLayerSel[i].inPoint + (compFrameRate * i);
-            curLayerSel[i].outPoint = curLayerSel[i].inPoint + layerDur;
+            curLayerSel[i].startTime  = curLayerSel[i].inPoint + (compFrameRate * i);
         }
 
         return
