@@ -88,9 +88,9 @@
         for(var i = 0; i < curLayerSel.length; i++){
             var layerDur = curLayerSel[i].outPoint - curLayerSel[i].inPoint;
             if(delayFrames == 1){
-            curLayerSel[i].startTime  = curLayerSel[i].inPoint + (compFrameRate * i);
+            curLayerSel[i].startTime  = curLayerSel[0].inPoint + (compFrameRate * i);
             } else { 
-                curLayerSel[i].startTime  = curLayerSel[i].inPoint + (compFrameRate * i * parseInt(delayFrames))
+                curLayerSel[i].startTime  = curLayerSel[0].inPoint + (compFrameRate * i * parseInt(delayFrames))
             }
         }
 
