@@ -39,14 +39,13 @@
           return alert("Please open a comp first")
       }
 
-        var selectedLayers = comp.selectedLayers;
-        var selectedProps = new Array();
-
-        if(selectedLayers.length < 1){
-          return alert("Please select properties on a layer first")
+      var selectedLayers = comp.selectedLayers;
+      if(selectedLayers.length == 0){
+        return alert("Please select properties on a layer first")
       }
-
       
+      var selectedProps = new Array();
+
       for(var j = 0; j < selectedLayers.length; j++){
         var curProps = selectedLayers[j].selectedProperties;
           for(var i = 0; i < curProps.length; i++){

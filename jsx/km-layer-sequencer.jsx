@@ -43,15 +43,17 @@
     applyGroup.orientation = 'row';
     var applyButton = applyGroup.add("button", undefined, "Apply");
     applyButton.preferredSize = [-1,30];
-    applyButton.helpTip = "Click: Sequence layers.\rInsert a number in text field to offset layers by a specific amount of frames"
+    applyButton.helpTip = "Click: Sequence layers.\rInsert a number in text field to offset layers by a specific amount of frames.\rShift+Click: Randomly sequence layers by frame amount entered in text field."
 
 
     applyButton.onClick = function(){
     try {
         app.beginUndoGroup("Sequences layers");
-        
+      
+        var keyState = ScriptUI.environment.keyboardState;
+        var modKey = keyState.shiftKey;    
 
-        sequenceLayers(frameDelayTextBox.text)
+        sequenceLayers(frameDelayTextBox.text, modKey)
 
       } catch(error) {
         alert(error)
@@ -63,7 +65,7 @@
     }
 
     
-    function sequenceLayers(delayFrames){
+    function sequenceLayers(delayFrames, mod){
         var activeComp = app.project.activeItem;
         
         if(!(activeComp && activeComp instanceof CompItem)){
@@ -71,7 +73,7 @@
         }
 
 
-        var compFrameRate = activeComp.frameDuration;
+        var compFrameRate = activeComp.frameDuration * parseInt(delayFrames);
         var curLayerSel = activeComp.selectedLayers;
 
         if(curLayerSel.length < 2){
@@ -86,10 +88,10 @@
 
 
         for(var i = 0; i < curLayerSel.length; i++){
-            if(delayFrames == 1){
+            if(!(mod)){
             curLayerSel[i].startTime  = curLayerSel[i].startTime + (compFrameRate * i);
             } else { 
-                curLayerSel[i].startTime  = curLayerSel[i].startTime + (compFrameRate * i * parseInt(delayFrames))
+            curLayerSel[i].startTime = curLayerSel[i].startTime + (compFrameRate * Math.random() * i);
             }
         }
 
