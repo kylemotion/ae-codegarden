@@ -43,7 +43,7 @@
       if(selectedLayers.length == 0){
         return alert("Please select properties on a layer first")
       }
-      
+
       var selectedProps = new Array();
 
       for(var j = 0; j < selectedLayers.length; j++){
@@ -143,7 +143,7 @@
             };
 
             if(propSel.propertyValueType == PropertyValueType.TwoD_SPATIAL || propSel.propertyValueType == PropertyValueType.ThreeD_SPATIAL){
-              propSel.setSpatialContinuoousAtKey(newKeyIndex, keysArray[k].scb);
+              propSel.setSpatialContinuousAtKey(newKeyIndex, keysArray[k].scb);
               propSel.setSpatialAutoBezierAtKey(newKeyIndex, keysArray[k].sab);
               propSel.setSpatialTangentsAtKey(newKeyIndex, keysArray[k].ist, keysArray[k].ost);
               propSel.setRovingAtKey(newKeyIndex, keysArray[k].rov)
