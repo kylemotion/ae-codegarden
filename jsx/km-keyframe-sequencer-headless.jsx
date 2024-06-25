@@ -14,7 +14,8 @@
     try {
         app.beginUndoGroup("Sequences keyframes");
         var activeComp = app.project.activeItem;
-        var getPropSel = getPropertySelection(activeComp);
+        var metaKey = ScriptUI.environment.keyboardState.metaKey;
+        var getPropSel = getPropertySelection(activeComp, metaKey);
         var keyframeCollect = collectKeyframes(getPropSel);
 
 
@@ -30,7 +31,7 @@
       
       
 
-    function getPropertySelection(comp) {
+    function getPropertySelection(comp, meta) {
       
         if(!(comp && comp instanceof CompItem)){
           return alert("Please open a comp first")
@@ -55,8 +56,11 @@
 
         }
 
-
-        return selectedProps
+        if(meta){
+          return selectedProps
+        } else {
+          return selectedProps.reverse()
+        }
       }
     
     function collectKeyframes(props){
