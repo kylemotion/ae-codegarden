@@ -1,6 +1,6 @@
 /**
  * 
- * a headless script to sequence keyframes by 1 frame everytime the script is run
+ * a script to sequence keyframes by a specified frame amount everytime the script is run
  * @author: Kyle Harter <kylenmotion@gmail.com>
  * @version 0.1.1
  * 
@@ -9,20 +9,54 @@
 */
 
 
-(function(){
+(function(thisObj){
 
+  createUI(thisObj)
+
+
+  var scriptName = "km-frame-sequencer";
+
+    function createUI(thisObj){
+        var win = thisObj instanceof Panel
+        ? thisObj
+        : new Window("window", scriptName, undefined, {
+            resizeable: true
+        })
+
+    win.orientation = 'column';
+    win.alignChildren = ["left", "top"];
+
+    var mainGroup = win.add("group", undefined, "Main Group");
+    mainGroup.orientation = 'column';
+
+
+    var frameDelayGroup = mainGroup.add("group", undefined, "Frame Delay Group");
+    frameDelayGroup.orientation = 'row';
+    var frameDelayText = frameDelayGroup.add("statictext", undefined, "Frames to delay: ")
+    var frameDelayTextBox = frameDelayGroup.add("edittext", undefined, "1");
+    frameDelayTextBox.preferredSize = [50,30];
+
+    
+    var applyGroup = mainGroup.add("group", undefined, "Apply Group");
+    applyGroup.orientation = 'row';
+    var applyButton = applyGroup.add("button", undefined, "Apply");
+    applyButton.preferredSize = [-1,30];
+    applyButton.helpTip = "Click: Sequence Keyframes from bottom property to top property.\rInsert a number in text field to offset layers by a specific amount of frames.\rShift+Click: Reverse sequence order to sequence from top property to bottom property"
+
+
+applyButton.onClick = function(){
     try {
         app.beginUndoGroup("Sequences keyframes");
         var activeComp = app.project.activeItem;
         var keyState = ScriptUI.environment.keyboardState; 
-        var metaKey = keyState.metaKey;
-        // var shiftKey = keyState.shiftKey;
-        var getPropSel = getPropertySelection(activeComp, metaKey);
+        // var metaKey = keyState.metaKey;
+        var shiftKey = keyState.shiftKey;
+        var getPropSel = getPropertySelection(activeComp, shiftKey);
         var keyframeCollect = collectKeyframes(getPropSel);
 
 
 
-        sequenceKeyframes(getPropSel,keyframeCollect, activeComp)
+        sequenceKeyframes(getPropSel,keyframeCollect, activeComp, frameDelayTextBox.text)
       } catch(error) {
         alert(error)
 
@@ -30,7 +64,7 @@
         // this always runs no matter what
         app.endUndoGroup()
       }
-      
+    }
       
 
     function getPropertySelection(comp, meta) {
@@ -113,10 +147,16 @@
 
   
 
-    function sequenceKeyframes(props, keysArray, comp){
+    function sequenceKeyframes(props, keysArray, comp, frames){
       try{
         var compFrameRate = comp.frameDuration;
-        var frameDelay = compFrameRate * 1;
+        var frameDelay = compFrameRate * parseInt(frames);
+
+        if(isNaN(frames) || frames.trim() == ''){
+          return alert("Please enter a number in the text field")
+        }
+
+
         var propSelection = props;
         
 
@@ -160,4 +200,22 @@
       }
     }
 
-}())
+
+
+    win.onResizing = win.onResize = function (){
+      this.layout.resize();
+  };
+
+  if(win instanceof Window){
+      win.center();
+      win.show();
+  } else {
+      win.layout.layout(true);
+      win.layout.resize();
+  }
+
+
+  }
+
+
+}(this))

@@ -14,8 +14,17 @@
     try {
         app.beginUndoGroup("Sequences layers");
         
+      var keyState = ScriptUI.environment.keyboardState;
+      // Cmd key on Mac
+      var os = $.os.toLowerCase().indexOf('mac') >= 0 ? "MAC": "WINDOWS";
+      var modKey;
+      if(os == "MAC"){
+        modKey = keyState.metaKey;
+      } else {
+        modKey = keyState.ctrlKey;
+      }
 
-        sequenceLayers()
+        sequenceLayers(modKey)
       } catch(error) {
         alert(error)
 
@@ -25,13 +34,12 @@
       }
 
     
-    function sequenceLayers(){
+    function sequenceLayers(mod){
         var activeComp = app.project.activeItem;
         
         if(!(activeComp && activeComp instanceof CompItem)){
             return alert("Please open a comp first")
         }
-
 
         var compFrameRate = activeComp.frameDuration;
         var curLayerSel = activeComp.selectedLayers;
@@ -42,9 +50,13 @@
 
 
         for(var i = 0; i < curLayerSel.length; i++){
+          if(!(mod)){
             curLayerSel[i].startTime  = curLayerSel[i].startTime + (compFrameRate * i);
+          } else {
+            curLayerSel[i].startTime = curLayerSel[i].startTime + (compFrameRate * Math.random(-i, i));
+          }
         }
-
+ 
         return
 
 
