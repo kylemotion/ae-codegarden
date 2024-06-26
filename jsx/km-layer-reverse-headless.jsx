@@ -14,15 +14,10 @@
     try {
         app.beginUndoGroup("layer order reverse");
         var activeComp = app.project.activeItem;
-        var keyState = ScriptUI.environment.keyboardState; 
-        var metaKey = keyState.metaKey;
-        // var shiftKey = keyState.shiftKey;
-        var getPropSel = getPropertySelection(activeComp, metaKey);
-        var keyframeCollect = collectKeyframes(getPropSel);
+        var layerSelection = getLayerSel(activeComp);
+        var sortedLayers = sortLayers(layerSelection)
 
-
-
-        sequenceKeyframes(getPropSel,keyframeCollect, activeComp)
+        reverseLayerOrder(layerSelection, sortedLayers, activeComp)
       } catch(error) {
         alert(error)
 
@@ -33,130 +28,59 @@
       
       
 
-    function getPropertySelection(comp, meta) {
+    function getLayerSel(comp){
+      var selLayers
       
-        if(!(comp && comp instanceof CompItem)){
-          return alert("Please open a comp first")
+      if(!(comp && comp instanceof CompItem)){
+         alert("Open up a comp first")
+         return
       }
 
-      var selectedLayers = comp.selectedLayers;
-      if(selectedLayers.length == 0){
-        return alert("Please select properties on a layer first")
+      selLayers = comp.selectedLayers;
+      
+      if(selLayers.length < 2){
+        alert("Select atleast 2 layers first")
+        return 
+      }
+      
+      var sellayersCollection = new Array();
+
+      for(var i = 0; i<selLayers.length; i++){
+        sellayersCollection.push(selLayers[i]);
       }
 
-      var selectedProps = new Array();
+      return sellayersCollection
 
-      for(var j = 0; j < selectedLayers.length; j++){
-        var curProps = selectedLayers[j].selectedProperties;
-          for(var i = 0; i < curProps.length; i++){
-            if(curProps[i].numKeys > 0){
-              selectedProps.push(curProps[i])
-            }
-         
-        }
+    }
 
-        }
+    function sortLayers(layers){
+      return layers.slice().sort(function(a,b){
+        return a.index-b.index
+      })
+    }
 
-        if(meta){
-          return selectedProps
-        } else {
-          return selectedProps.reverse()
-        }
+
+    function reverseLayerOrder(selLayers,layersArray,comp){
+      var origSelLayers = selLayers.reverse();
+      var layerIndices = layersArray;
+      
+      for(var i = 1; i<layerIndices.length; i++){
+        var layer = origSelLayers[i];
+          if(i==0){
+            // alert(layer.name)
+            // Move the first layer to it's new position
+            layer.moveBefore(comp.layer(origSelLayers[origSelLayers.length-1]))
+          } else{
+            // alert(layer.name)
+            // move the rest of the layers
+            layer.moveAfter(origSelLayers[i-1])
+          }
       }
+
+      return 
+    }
+   
     
-    function collectKeyframes(props){
-        
-      var selProps = props;
-
-
-
-        var keyIndexList, curKeyIndex, curKeyValue, inin, outin, ab, cb, ie, oe, sab, scb, ist, ost, rov, twoDS, threeDS;
-        twoDS = PropertyValueType.TwoD_SPATIAL;
-        threeDS = PropertyValueType.ThreeD_SPATIAL;
-
-        keyIndexList = new Array();
-        
-        for(var i = 0; i<selProps.length; i++){
-          var selectedProps = selProps[i];
-          for(var j=1; j <= selectedProps.numKeys; j++){
-            var curKeyTime = selectedProps.keyTime(j);
-            curKeyIndex = j;
-            curKeyValue = selectedProps.keyValue(j);
-            inin = selectedProps.keyInInterpolationType(curKeyIndex);
-            outin = selectedProps.keyOutInterpolationType(curKeyIndex);
-
-            if(inin == KeyframeInterpolationType.BEZIER && outin==KeyframeInterpolationType.BEZIER){
-              ab = selectedProps.keyTemporalAutoBezier(curKeyIndex);
-              cb = selectedProps.keyTemporalContinuous(curKeyIndex);
-            }
-
-            if(inin != KeyframeInterpolationType.HOLD || outin != KeyframeInterpolationType.HOLD){
-              ie = selectedProps.keyInTemporalEase(curKeyIndex);
-              oe = selectedProps.keyOutTemporalEase(curKeyIndex);
-            }
-
-            if(selectedProps.propertyValueType == twoDS || selectedProps.propertyValueType == threeDS){
-              sab = selectedProps.keySpatialAutoBezier(curKeyIndex);
-              scb = selectedProps.keySpatialContinuous(curKeyIndex);
-              ist = selectedProps.keyInSpatialTangent(curKeyIndex);
-              ost = selectedProps.keyOutSpatialTangent(curKeyIndex);
-              rov = selectedProps.keyRoving(curKeyIndex);
-            }
-
-            keyIndexList[keyIndexList.length] = {'curKeyTime': curKeyTime, 'curKeyIndex':curKeyIndex,'curKeyValue':curKeyValue,'inin':inin,'outin':outin,'ab':ab,'cb':cb,'ie':ie,'oe':oe,'sab':sab,'scb':scb,'ist':ist,'rov':rov};
-          }
-        }
-
-        return keyIndexList
-    }
-
-  
-
-    function sequenceKeyframes(props, keysArray, comp){
-      try{
-        var compFrameRate = comp.frameDuration;
-        var frameDelay = compFrameRate * 1;
-        var propSelection = props;
-        
-
-        // remove keyframes on properties
-        for(var i = 0; i< propSelection.length; i++){
-           while(propSelection[i].numKeys > 0){
-              propSelection[i].removeKey(1);
-            }
-        }
-
-        // paste keyframes and sequence them
-        var newKeyTime, addNewKey, newKeyIndex;
-        var keyArrayLength = keysArray.length;
-        for(var j = 0; j < propSelection.length; j++){
-          var propSel = propSelection[j];
-          for(var k = 0; k< keyArrayLength; k++){
-            addNewKey = propSel.addKey(keysArray[k].curKeyTime + (frameDelay * j));
-            newKeyIndex = addNewKey;
-            propSel.setValueAtKey(newKeyIndex, keysArray[k].curKeyValue);
-
-            propSel.setInterpolationTypeAtKey(newKeyIndex, keysArray[k].inin, keysArray[k].outin);
-            if(keysArray[k].inin == KeyframeInterpolationType.BEZIER && keysArray[k].outin == KeyframeInterpolationType.BEZIER && keysArray[k].cb){
-              propSel.setTemporalContinuousAtKey(newKeyIndex, keysArray[k].cb);
-              propSel.setTemporalAutoBezierAtKey(newKeyIndex, keysArray[k].ab);
-            };
-
-            if(propSel.propertyValueType == PropertyValueType.TwoD_SPATIAL || propSel.propertyValueType == PropertyValueType.ThreeD_SPATIAL){
-              propSel.setSpatialContinuousAtKey(newKeyIndex, keysArray[k].scb);
-              propSel.setSpatialAutoBezierAtKey(newKeyIndex, keysArray[k].sab);
-              propSel.setSpatialTangentsAtKey(newKeyIndex, keysArray[k].ist, keysArray[k].ost);
-              propSel.setRovingAtKey(newKeyIndex, keysArray[k].rov)
-            };
-
-          }
-        }
-
-        return
-
-      } catch(err){
-        alert(err.line.toString() + "\r" + err.toString());
-      }
-    }
 
 }())
+
