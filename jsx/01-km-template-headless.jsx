@@ -25,7 +25,7 @@
 
         hello(activeComp)
       } catch(error) {
-        alert(error)
+        alert("An error occured on line: " + error.line + "\nError message: " + error.message);
 
       } finally {
         // this always runs no matter what

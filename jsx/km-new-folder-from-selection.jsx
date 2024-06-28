@@ -29,34 +29,47 @@
     mainGroup.orientation = 'column';
 
 
+    var newFolderGroup = mainGroup.add("group", undefined, "Apply Group");
+    newFolderGroup.orientation = 'row';
+
+    var newFolderStaticText = newFolderGroup.add("statictext", undefined, "New folder name:");
+    var newFolderEditText = newFolderGroup.add("edittext", undefined, "");
+    newFolderEditText.preferredSize = [100, 30];
+    
+
+
     var applyGroup = mainGroup.add("group", undefined, "Apply Group");
     applyGroup.orientation = 'row';
     var applyButton = applyGroup.add("button", undefined, "Apply");
     applyButton.preferredSize = [-1,30];
-    applyButton.helpTip = "Click: Apply markers to selected layers.\rShift+Click: Apply markers to beginning of a comp."
+    applyButton.helpTip = 'Click: Collect selected items into a folder that you name.\rShift+Click: Collect selected items into a folder with a name of \"New folder from Selection\".'
 
 
     applyButton.onClick = function(){
     try {
-        app.beginUndoGroup("What script does");
+        app.beginUndoGroup("New folder from selection");
+        var project = app.project;
+        var selectedItems = getItems(project);
 
-        var activeComp = app.project.activeItem;
-        var curLayerSel = activeComp.selectedLayers;
-
-        if(!(activeComp && activeComp instanceof CompItem)){
-            alert("Please open a comp first")
+        if(selectedItems.length < 1){
+            alert("Select atleast 1 item to be sorted into a folder")
             return
         }
 
-        // if(!curLayerSel.length){
-        //     alert("Select atleast 1 layer first");
-        //     return
-        // }
+        var newFolderName = newFolderEditText.text;
 
-        name('#98745d')
+        if(newFolderName == ""){
+            alert("Enter a name for your new folder before moving forward")
+            return
+        }
 
+        var shiftKey = ScriptUI.environment.keyboardState.shiftKey;
+
+        var newFolder = createFolder(project, newFolderName, shiftKey);
+        
+        putItemsInFolder(selectedItems, newFolder)
       } catch(error) {
-        alert(error)
+        alert("An error occured on line: " + error.line + "\nError message: " + error.message);
       } finally {
         // this always runs no matter what
         app.endUndoGroup()
@@ -65,10 +78,30 @@
     }
 
     
-    function name(hexCode){
-        return alert(hexToRGB(hexCode))
+    function getItems(proj){
+        var selectedItems = proj.selection;
         
+        return selectedItems
     }
+
+    function createFolder(proj, folderName, shift){
+        
+        var newFolder = proj.items.addFolder(folderName);
+        
+        if(shift){
+            newFolder.name = "New folder from selection"
+        } 
+        return newFolder
+    }
+
+    function putItemsInFolder(selItems, folder){
+        for(var i = 0; i<selItems.length; i++){
+            selItems[i].parentFolder = folder
+        }
+
+        return folder
+    }
+
 
     win.onResizing = win.onResize = function (){
         this.layout.resize();
