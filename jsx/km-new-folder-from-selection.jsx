@@ -1,15 +1,9 @@
 /**
- * @description a script wiht a UI that will do something really fucking cool in AE
- * @name km-scriptname
- * @author Kyle Harter <kylenmotion@gmail.com>
- * @version 1.0.0
  * 
- * @license This script is provided "as is," without warranty of any kind, expressed or implied. In
- * no event shall the author be held liable for any damages arising in any way from the use of this
- * script.
+ * @description a script that will create a folder in the project panel that will hold the selected items in the panel
+ * @author: Kyle Harter <kylenmotion@gmail.com>
+ * @version 0.1.0
  * 
- * 
- * 6.28.2024
  * 
  * 
 */
@@ -17,10 +11,7 @@
 
 (function(thisObj){
     
-// @include './library/km_functionLibrary.jsx';
-
-
-    var scriptName = "Script Name";
+    var scriptName = "km-new-folder-from-selection";
 
     createUI(thisObj)
 
