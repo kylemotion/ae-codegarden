@@ -1,10 +1,16 @@
 /**
  * 
  * @description a script that will create a folder in the project panel that will hold the selected items in the panel
+ * @name km-new-folder-from-selection
  * @author: Kyle Harter <kylenmotion@gmail.com>
- * @version 0.1.0
+ * @version 1.1.0
+ * 
+ * @license This script is provided "as is," without warranty of any kind, expressed or implied. In
+ * no event shall the author be held liable for any damages arising in any way from the use of this
+ * script.
  * 
  * 
+ * 6.28.2024
  * 
 */
 
@@ -42,7 +48,7 @@
     applyGroup.orientation = 'row';
     var applyButton = applyGroup.add("button", undefined, "Apply");
     applyButton.preferredSize = [-1,30];
-    applyButton.helpTip = 'Click: Collect selected items into a folder that you name.\rShift+Click: Collect selected items into a folder with a name of \"New folder from Selection\".'
+    applyButton.helpTip = 'Click: Collect selected items into a folder that you name.'
 
 
     applyButton.onClick = function(){
@@ -58,14 +64,7 @@
 
         var newFolderName = newFolderEditText.text;
 
-        if(newFolderName == ""){
-            alert("Enter a name for your new folder before moving forward")
-            return
-        }
-
-        var shiftKey = ScriptUI.environment.keyboardState.shiftKey;
-
-        var newFolder = createFolder(project, newFolderName, shiftKey);
+        var newFolder = createFolder(project, newFolderName);
         
         putItemsInFolder(selectedItems, newFolder)
       } catch(error) {
@@ -84,13 +83,18 @@
         return selectedItems
     }
 
-    function createFolder(proj, folderName, shift){
+    function createFolder(proj, folderName){
+        var newFolderName = folderName;
+
+        if(!(folderName)){
+            newFolderName = "New folder from selection"
+        }
+
+        var newFolder = proj.items.addFolder(newFolderName);
         
-        var newFolder = proj.items.addFolder(folderName);
         
-        if(shift){
-            newFolder.name = "New folder from selection"
-        } 
+
+
         return newFolder
     }
 
