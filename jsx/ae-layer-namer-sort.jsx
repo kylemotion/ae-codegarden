@@ -17,60 +17,55 @@
 
 (function km_layerRenamer(thisObj) {
 
-   
-
     createUI(thisObj);
 
-    var scriptName = 'ae-layer-namer-sort';
+    var scriptName = "ae-layer-namer-sort";
 
     function createUI(thisObj) {
         var win = thisObj instanceof Panel
             ? thisObj
-            : new Window("palette", scriptName , undefined, {
+            : new Window("palette", "ae-layer-namer-sort" , undefined, {
                 resizeable: true
             })
 
         win.orientation = "column";
         win.alignChildren = ["fill", "top"];
 
-        var layerNameSepPanel = win.add("panel", undefined);
-        layerNameSepPanel.orientation = "column";
-        layerNameSepPanel.alignChildren = ["fill", "top"];
-        var layerNameEditGroup = layerNameSepPanel.add("group", undefined, "Layer Name Group");
+        var mainPanel = win.add("panel", undefined, scriptName);
+        mainPanel.orientation = "column";
+        mainPanel.alignChildren = ["fill", "top"];
+        var layerNameEditGroup = mainPanel.add("group", undefined, "Layer Name Group");
         layerNameEditGroup.orientation = "column";
         layerNameEditGroup.alignChildren = "left";
         var layerNameStatic = layerNameEditGroup.add("statictext", undefined, "Layer Name");
         var layerNameEdit = layerNameEditGroup.add("edittext", undefined, "Enter custom layer name");
         layerNameEdit.characters = 20;
-        var separatorGroup = layerNameSepPanel.add("group", undefined, "Separator Group");
+        var separatorGroup = mainPanel.add("group", undefined, "Separator Group");
         separatorGroup.orientation = "column";
         separatorGroup.alignChildren = "left";
         var separatorStatic = separatorGroup.add("statictext", undefined, "Separator")
         var separatorEdit = separatorGroup.add("edittext", undefined, "-")
         separatorEdit.characters = 20;
 
-        var utilitiesGroup = layerNameSepPanel.add("group", undefined);
+        var utilitiesGroup = mainPanel.add("group", undefined);
         utilitiesGroup.orientation = "column";
         utilitiesGroup.alignChildren = "left";
         var startNumberStatic = utilitiesGroup.add("statictext", undefined, "Start Number");
-        var startNumberEdit = utilitiesGroup.add("edittext", undefined, "Enter start number");
+        var startNumberEdit = utilitiesGroup.add("edittext", undefined, "1");
         startNumberEdit.characters = 20;
-        var overrideGroup = layerNameSepPanel.add("group", undefined);
-        overrideGroup.orientation = "row";
-        overrideGroup.alignChildren = "left";
-        var overrideStaticText = overrideGroup.add("statictext", undefined, "Iteration override")
-        var iterateOverrideCheckbox = overrideGroup.add("checkbox", undefined)
 
+        var orderDropdownGroup = mainPanel.add("dropdownlist", undefined, ["Ascending", "Descending"]);
+        orderDropdownGroup.selection = "Ascending";
 
         var buttonGroup = win.add("group", undefined, "buttons");
         buttonGroup.orientation = 'row';
         buttonGroup.alignChildren = ["fill", "top"];
 
-        var renameButton = buttonGroup.add("button", undefined, "Rename");
-        renameButton.size = [100, 25]
+        var runScriptButton = buttonGroup.add("button", undefined, "Run Script");
+        runScriptButton.size = [100, 25]
 
         
-        renameButton.onClick = function () {
+        runScriptButton.onClick = function () {
             app.beginUndoGroup("rename")
 
             try{
@@ -92,10 +87,10 @@
         }catch(error){
             alert("An error occured on line: " + error.line + "\nError message: " + error.message);
         } finally {
-            app.endUndoGroup()
         }
-
-
+        
+        app.endUndoGroup()
+    }
         win.onResizing = win.onResize = function (){
             this.layout.resize();
         };
@@ -109,14 +104,16 @@
         }
     
     
-        }
+        
     }
     
     
 
+    function getLayerSel(){
+        return
+    }
 
 
-    
 
 
     function renameLayers(selectedLayers,layerNames, separator, startNum, override) {
@@ -137,5 +134,12 @@
 
         return selectedLayers
     }
+
+    function sortLayers(layers){
+        return layers.slice().sort(function(a,b){
+          return a.index-b.index
+        })
+      }
+
 
 }(this))
