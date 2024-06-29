@@ -1,26 +1,32 @@
 /**
+ * @description A script that will name selected layers with iteration and then sort them in ascending or descending order in the composition in AE. 
+ * @name ae-layer-namer-sort
+ * @author Kyle Harter <kylenmotion@gmail.com>
+ * @version 1.0.0
  * 
- * renames layers in batches
+ * @license This script is provided "as is," without warranty of any kind, expressed or implied. In
+ * no event shall the author be held liable for any damages arising in any way from the use of this
+ * script.
  * 
- * @author: Kyle Harter <k.harter@glassandmarker.com>
- * @version 0.3.1
- * 6.297.2023
- */
+ * 
+ * 6.29.2024
+ * 
+ * 
+**/
 
 
 (function km_layerRenamer(thisObj) {
 
    
 
-
-
     createUI(thisObj);
 
+    var scriptName = 'ae-layer-namer-sort';
 
     function createUI(thisObj) {
         var win = thisObj instanceof Panel
             ? thisObj
-            : new Window("palette", "km_LayerRenamer", undefined, {
+            : new Window("palette", scriptName , undefined, {
                 resizeable: true
             })
 
@@ -43,9 +49,6 @@
         var separatorEdit = separatorGroup.add("edittext", undefined, "-")
         separatorEdit.characters = 20;
 
-        // var utilitiesPanel = win.add("panel", undefined, "Utilities");
-        // utilitiesPanel.orientation = "row";
-        // utilitiesPanel.alignChildren = ["fill", "top"];
         var utilitiesGroup = layerNameSepPanel.add("group", undefined);
         utilitiesGroup.orientation = "column";
         utilitiesGroup.alignChildren = "left";
@@ -69,6 +72,9 @@
         
         renameButton.onClick = function () {
             app.beginUndoGroup("rename")
+
+            try{
+
             var activeComp = app.project.activeItem;
 
             if (!(activeComp && activeComp instanceof CompItem)) {
@@ -77,30 +83,40 @@
             }
             var selectedLayers = activeComp.selectedLayers;
 
-            if (selectedLayers < 1) {
+            if (selectedLayers.length < 1) {
                 alert("Please select atleast 1 layer first!")
                 return
             }
-
+            
             renameLayers(selectedLayers,layerNameEdit.text, separatorEdit.text,startNumberEdit.text,iterateOverrideCheckbox.value);
-            win.close();
+        }catch(error){
+            alert("An error occured on line: " + error.line + "\nError message: " + error.message);
+        } finally {
             app.endUndoGroup()
         }
 
 
-        win.onResizing = win.onResize = function () {
+        win.onResizing = win.onResize = function (){
             this.layout.resize();
         };
-
-        if (win instanceof Window) {
+    
+        if(win instanceof Window){
             win.center();
             win.show();
         } else {
             win.layout.layout(true);
             win.layout.resize();
         }
+    
+    
+        }
     }
+    
+    
 
+
+
+    
 
 
     function renameLayers(selectedLayers,layerNames, separator, startNum, override) {
@@ -122,6 +138,4 @@
         return selectedLayers
     }
 
-})(this)
-
-
+}(this))
