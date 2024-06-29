@@ -74,7 +74,9 @@
         runScriptButton.size = [100, 25];
 
         helpButton.onClick = function(){
-            alert("How to use ae-layer-namer-sort:\r1.")
+            alert("How to use ae-layer-namer-sort:\r\
+                1.Fill in information in text fields.\r\
+                2. Click Run Script button!")
         }
 
         
