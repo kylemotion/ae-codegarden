@@ -160,7 +160,13 @@
         }
 
         helpButton.onClick = function (){
-            alert("FUCK")
+            alert('How to use AE Layer Sequencer:\r\
+                1. Select some layers\r\
+                2. Select your sorting style\r\
+                3. Drag slider to either sequentially stagger layers or randomly stagger them.\r\
+                4. Click \'Double!\' to stagger layers in a double sequencing fashion.\r\
+                \r\
+                Don\'t\ hesitate to reach out to Kyle Harter at kylenmotion@gmail.com for any assistance')
         }
 
 
