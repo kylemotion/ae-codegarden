@@ -1,6 +1,6 @@
 /**
- * @description A script that will name selected layers with iteration and then sort them in ascending or descending order in the composition in AE. 
- * @name ae-layer-namer-sort
+ * @description A script that will sequence layers with a slider for an interactive experience. Randomization and doubling sequencing added.
+ * @name ae-layer-sequencer
  * @author Kyle Harter <kylenmotion@gmail.com>
  * @version 1.0.0
  * 
@@ -19,68 +19,58 @@
 
     createUI(thisObj);
 
-    var scriptName = "ae-layer-namer-sort";
+    var scriptName = "ae-layer-sequencer";
 
     function createUI(thisObj) {
         var win = thisObj instanceof Panel
             ? thisObj
-            : new Window("palette", "ae-layer-namer-sort" , undefined, {
+            : new Window("palette", "ae-layer-sequencer" , undefined, {
                 resizeable: true
             })
 
         win.orientation = "column";
         win.alignChildren = ["fill", "top"];
 
-        var mainPanel = win.add("panel", undefined, scriptName);
-        mainPanel.orientation = "column";
-        mainPanel.alignChildren = ["fill", "top"];
-        var layerNameEditGroup = mainPanel.add("group", undefined, "Layer Name Group");
-        layerNameEditGroup.orientation = "column";
-        layerNameEditGroup.alignChildren = "left";
-        var layerNameStatic = layerNameEditGroup.add("statictext", undefined, "Layer Name:");
-        var layerNameEdit = layerNameEditGroup.add("edittext", undefined, "Enter custom layer name");
-        layerNameEdit.characters = 20;
-        var separatorGroup = mainPanel.add("group", undefined, "Separator Group");
-        separatorGroup.orientation = "column";
-        separatorGroup.alignChildren = "left";
-        var separatorStatic = separatorGroup.add("statictext", undefined, "Separator:")
-        var separatorEdit = separatorGroup.add("edittext", undefined, "-")
-        separatorEdit.characters = 20;
+        var sequencerPanel = win.add("panel", undefined, "Sequence Style");
+        sequencerPanel.orientation = "column";
+        sequencerPanel.alignChildren = ["fill", "top"];
 
-        var utilitiesGroup = mainPanel.add("group", undefined);
-        utilitiesGroup.orientation = "column";
-        utilitiesGroup.alignChildren = "left";
-        var startNumberStatic = utilitiesGroup.add("statictext", undefined, "Start Number:");
-        var startNumberEdit = utilitiesGroup.add("edittext", undefined, "1");
-        startNumberEdit.characters = 20;
 
-        // var orderGroup = mainPanel.add("group", undefined, "order sort");
-        // orderGroup.orientation = "column";
-        // orderGroup.alignChildren = ["fill", "top"];
+        var sequenceGroup = sequencerPanel.add("group", undefined, "Sequence Group");
+        sequenceGroup.orientation = "column";
+        sequenceGroup.alignChildren = "left";
+        var sequenceOffset = sequenceGroup.add("radiobutton", undefined, "Offset");
+        var sequenceDoubling = sequenceGroup.add("radiobutton", undefined, "Doubling");
+        var sequenceRandom = sequenceGroup.add("radiobutton", undefined, "Random");
+        
 
-        // var orderDropdownStatic = orderGroup.add("statictext", undefined, "Sort Order:");
-        // var orderDropdown = orderGroup.add("dropdownlist", undefined, ["Ascending", "Descending"]);
-        // orderDropdown.size = [100,25];
-        // orderDropdown.selection = "Ascending";
+        var framePanel = win.add("panel", undefined, "Frame Doubling");
+        framePanel.orientation = 'column';
+        framePanel.alignChildren = ["fill", "top"];
 
-        var buttonGroup = win.add("group", undefined, "buttons");
-        buttonGroup.orientation = 'row';
-        buttonGroup.alignChildren = ["center", "top"];
-
-        var helpButton = buttonGroup.add("button", undefined, "?");
-        helpButton.size = [25,25];
-
-        var runScriptButton = buttonGroup.add("button", undefined, "Run Script");
-        runScriptButton.size = [100, 25];
-
-        helpButton.onClick = function(){
-            alert("How to use ae-layer-namer-sort:\r\
-                1.Fill in information in text fields.\r\
-                2. Click Run Script button!")
-        }
+        var doublingGroup = framePanel.add("group", undefined, "Doubling Group");
+        doublingGroup.orientation = "column";
+        doublingGroup.alignChildren = "left";
+        var doublingStatic = doublingGroup.add("statictext", undefined, "Doubling Frame Start: ");
+        var doublingInput = doublingGroup.add("edittext", undefined, "1");
+        doublingInput.characters = 20;
 
         
-        runScriptButton.onClick = function () {
+        var sliderPanel = win.add("panel", undefined, "Adjust layers");
+        sliderPanel.orientation = 'column';
+        sliderPanel.alignChildren = ["fill", "top"];
+
+        var sliderGroup = sliderPanel.add("group", undefined, "slider offset");
+        sliderGroup.orientation = 'column';
+        sliderGroup.alignChildren = ["fill", "top"];
+        var titleResult = sliderGroup.add("group",undefined, "Slider result");
+        titleResult.orientation = "row";
+        titleResult.alignChildren = "left";
+        var sliderOffset = sliderGroup.add("slider",undefined, 0, 0, 10);
+        sliderOffset.value = 0;
+
+        
+        sliderOffset.onChanging = function () {
             app.beginUndoGroup("rename")
 
             try{
@@ -100,11 +90,9 @@
                 return
             }
             
-            var layerRename = renameLayers(selectedLayers,layerNameEdit.text, separatorEdit.text,startNumberEdit.text);
-            var sortedLayers = sortLayers(layerRename);
-
-
-             orderLayersInComp(layerRename,sortedLayers,activeComp)
+            var delayFrameSlider = Math.floor(sliderOffset.value);
+            
+            sequenceLayersInComp(selectedLayers,activeComp, delayFrameSlider)
         }catch(error){
             alert("An error occured on line: " + error.line + "\nError message: " + error.message);
         } finally {
@@ -143,48 +131,16 @@
     }
 
 
-
-
-    function renameLayers(selectedLayers,layerNames, separator, startNum) {
-
-        for (var i = 0; i < selectedLayers.length; i++) {
-            var count = i + 1;
-            var startNumCount = Number(startNum) + i;
-                if(!startNum || isNaN(startNum)){
-                    selectedLayers[i].name = layerNames + separator + count
-                } else {
-                    selectedLayers[i].name = layerNames + separator + startNumCount
-                }
-        }
-
-        return selectedLayers
-    }
-
-    function sortLayers(layers){
-        return layers.slice().sort(function(a,b){
-          return a.name-b.name
-        })
-      }
-
-
-    function orderLayersInComp(selLayers,layersArray,comp){
-        var origSelLayers = selLayers.reverse();
-        var layerIndices = layersArray;
+    function sequenceLayersInComp(selLayers,comp, delayFrames){
+        var origSelLayers = selLayers.slice();
+        var compFrameRate = comp.frameDuration * parseInt(delayFrames);
         
-        for(var i = 1; i<layerIndices.length; i++){
+        for(var i = 1; i<origSelLayers.length; i++){
           var layer = origSelLayers[i];
-            if(i==0){
-              // alert(layer.name)
-              // Move the first layer to it's new position
-              layer.moveBefore(comp.layer(origSelLayers[origSelLayers.length-1]))
-            } else{
-              // alert(layer.name)
-              // move the rest of the layers
-              layer.moveAfter(origSelLayers[i-1])
-            }
+            layer.startTime = origSelLayers[i].startTime + (compFrameRate * i)
         }
   
-        return 
+        return origSelLayers
       }
 
 
