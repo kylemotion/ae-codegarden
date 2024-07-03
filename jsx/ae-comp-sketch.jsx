@@ -1,6 +1,6 @@
 /**
- * @description a headless script to switch on preserve nested frame rate in export comps
- * @name ae-comp-preserve-nested-fr
+ * @description a headless script to duplicate your current comp in the project panel as a means of sketching options
+ * @name ae-comp-sketch
  * @author Kyle Harter <kylenmotion@gmail.com>
  * @version 1.0.0
  * 
@@ -20,32 +20,23 @@
 (function(){
 
     try {
-        app.beginUndoGroup("preserve nested frame rates");
+        app.beginUndoGroup("create sketch comps and easy versioning");
         var proj = app.project;
 
         if(!(proj)){
-          alert("An After Effects project is not open. Either open on or create a new AE project file before continuing")
+          alert("Whoops!\r\ An After Effects project is not open. Either open on or create a new AE project file before continuing.")
           return 
         }
 
+      var activeComp = proj.activeItem;
+
+      if(!(activeComp && activeComp instanceof CompItem)){
+      alert("Woah!\r\ You don't have a comp open at the moment. Be sure to open one up before continuing.")
+      return
+      }
         
-        var selProjItems = proj.selection;
 
-        if(selProjItems.length < 1){
-          alert("Whoops!\r\
-            Select atleast 1 comp before continuing.")
-          return
-        }
-
-        var shiftKey = ScriptUI.environment.keyboardState.shiftKey;
-
-        var selectedCompItems = getCompItems(selProjItems);
-
-        if(shiftKey){
-          alertPreserveNextedFrameRate(selectedCompItems)
-        } else {
-          preserveNestedFrameRate(selectedCompItems)
-        }
+        duplicateCurrentComp(activeComp, proj)
 
       } catch(error) {
         alert("An error occured on line: " + error.line + "\nError message: " + error.message);
@@ -57,79 +48,28 @@
       
       
 
-    function getCompItems(selItems){
-      var compItems = new Array();
+    function duplicateCurrentComp(comp, project){
+      var currentComp = comp;
+      var items = project.items;
 
-      for(var i = 0; i<selItems.length; i++){
-        if(selItems[i] && selItems[i] instanceof CompItem){
-          compItems.push(selItems[i])
+      for(var i= 1; i <= items.length; i++){
+        if(items[i] instanceof CompItem && items[i].name === currentComp.name){
+          var dupedComp = project.item(i).duplicate();
+          
         }
       }
       
-      return compItems
+      currentComp.name = dupedComp.name;
+      var existingName = currentComp.name;
 
-    }
+      var newName = existingName.replace(/\d+/g, function(match) {
+          return parseInt(match) - 1;
+      });
 
 
-    function preserveNestedFrameRate(compItems){
-      var successComps = new Array();
-      var nameComps = new Array();
-
+      dupedComp.name = newName;
       
-      for(var i = 0; i<compItems.length; i++){
-        var nestedFR = compItems[i].preserveNestedFrameRate;
-        
-        if(nestedFR == false){
-          successComps.push(compItems[i]);
-          nameComps.push(compItems[i].name)
-          for(var j = 0; j<successComps.length; j++){
-            successComps[j].preserveNestedFrameRate = true;
-          }
-        }
-      }
-
-      if(successComps.length > 0){
-        alert("Success!\r\
-        You've preserved the nested frame rate in the following " + successComps.length.toString() + " comps!\r\
-        \r\
-        " + nameComps.join("\r"))
-      } else {
-        alert("Heads up!\r\
-          Looks like you've already preserved the nested frame rate in these selected comps")
-      }
-       return
-    }
-
-
-    function alertPreserveNextedFrameRate(compItems){
-      var trueComps = new Array();
-      var falseComps = new Array();
-
-      for(var i = 0; i<compItems.length; i++){
-        var nestedFR = compItems[i].preserveNestedFrameRate;
-        if(nestedFR == true){
-          trueComps.push(compItems[i].name);
-        } else {
-          falseComps.push(compItems[i].name);
-        }
-      }
-
-      var trueComp, falseComp;
-        trueComp = trueComps.join("\r");
-        falseComp = falseComps.join("\r");
-     
-
-      alert("Summary\r\
-        The following items' nested frame rate IS PRESERVED:\r\ " + 
-        trueComp + 
-        "\r\
-          \r\
-         The following items' nested frame rate IS NOT PRESERVED:\r\ " + 
-         falseComp
-        )
-
-      return compItems
-
+      return dupedComp
 
     }
 
