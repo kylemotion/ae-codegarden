@@ -2,7 +2,7 @@
  * @description A script that will sequence layers with a slider for an interactive experience. Randomization and doubling sequencing added.
  * @name ae-layer-sequencer
  * @author Kyle Harter <kylenmotion@gmail.com>
- * @version 1.0.0
+ * @version 1.1.0
  * 
  * @license This script is provided "as is," without warranty of any kind, expressed or implied. In
  * no event shall the author be held liable for any damages arising in any way from the use of this
@@ -62,9 +62,7 @@
         var doublingGroup = doublingPanel.add("group", undefined, "Doubling Group");
         doublingGroup.orientation = "column";
         doublingGroup.alignChildren = "left";
-        // var doublingStatic = doublingGroup.add("statictext", undefined, "Doubling Frame Start: ");
-        // var doublingInput = doublingGroup.add("edittext", undefined, "1");
-        // doublingInput.characters = 20;
+        
         var doublingButton = doublingGroup.add("button", undefined, "Double!");
         doublingButton.alignment = ["fill", "top"];
         doublingButton.size = [100,25];
@@ -86,7 +84,7 @@
             titleResult.text = "Random Seed: " + Math.round(sliderOffset.value);
         }
         
-
+        
         
         sliderOffset.onChange = function () {
             app.beginUndoGroup("rename")
@@ -115,8 +113,10 @@
                 alert("Please select some layers first!")
                 return
             }
+
+            var shiftKey = ScriptUI.environment.keyboardState.shiftKey;
             
-            sequenceLayersInComp(selectedLayers,activeComp, sequenceRandom.value, offsetSlider)
+            sequenceLayersInComp(selectedLayers,activeComp, sequenceRandom.value, offsetSlider,shiftKey)
         }catch(error){
             alert("An error occured on line: " + error.line + "\nError message: " + error.message);
         } finally {
@@ -142,14 +142,9 @@
                 return
             }
 
-            // var doubles = doublingInput.text;
+            var shiftKey = ScriptUI.environment.keyboardState.shiftKey;
 
-            // if(isNaN(doubles) || doubles.trim() == ''){
-            //     alert("Please enter a number into the doubles sequencing field")
-            //     return 
-            // }
-
-            doubleSequencing(selectedLayers, activeComp)
+            doubleSequencing(selectedLayers, activeComp, shiftKey)
 
             } catch(error){
                 alert("An error occured on line: " + error.line + "\nError message: " + error.message);
@@ -165,6 +160,7 @@
                 2. Select your sorting style\r\
                 3. Drag slider to either sequentially stagger layers or randomly stagger them.\r\
                 4. Click \'Double!\' to stagger layers in a double sequencing fashion.\r\
+                5. Shift + Click or Drag will stagger layers beginning at the beginning of your comp\r\
                 \r\
                 Don\'t\ hesitate to reach out to Kyle Harter at kylenmotion@gmail.com for any assistance')
         }
@@ -201,17 +197,27 @@
     }
 
 
-    function sequenceLayersInComp(selLayers,comp, randomOff, sliderVal){
+    function sequenceLayersInComp(selLayers,comp, randomOff, sliderVal, shift){
         var origSelLayers = selLayers.slice();
         var compFrameRate = comp.frameDuration * sliderVal;
         
+        
+
         for(var i = 0; i<origSelLayers.length; i++){
           var layer = origSelLayers[i];
 
-            if(randomOff){
-                layer.startTime = comp.time + (compFrameRate * ((Math.random()-.5) * 2 * i))
+          var beginTime;
+
+            if(shift){
+                beginTime = 0;
             } else {
-                layer.startTime = comp.time + (compFrameRate * i)
+                beginTime = comp.time
+            }
+
+            if(randomOff){
+                layer.startTime = beginTime + (compFrameRate * ((Math.random()-.5) * 2 * i))
+            } else {
+                layer.startTime = beginTime + (compFrameRate * i)
             }
         }
   
@@ -219,13 +225,23 @@
       }
 
 
-    function doubleSequencing(selLayers, comp){
+    function doubleSequencing(selLayers, comp, shift){
         var origSelLayers = selLayers.slice();
         var compFrameRate = comp.frameDuration;
         
         for(var i = 0; i<origSelLayers.length; i++){
+
+            var beginTime;
+
+            if(shift){
+                beginTime = 0;
+            } else {
+                beginTime = comp.time
+            }
+
+
           var layer = origSelLayers[i];
-          layer.startTime = comp.time;
+          layer.startTime = beginTime;
           var frameOffset = Math.pow(2,i)-1;
           var timeOffset = frameOffset * compFrameRate;
           layer.startTime += timeOffset;
