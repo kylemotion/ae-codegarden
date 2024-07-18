@@ -1,6 +1,6 @@
 /**
- * @description a script wiht a UI that will lay selected layers out in a grid in a composition in AE
- * @name km-layer-grid-layout
+ * @description a script wiht a UI that will lay selected project items out in a grid in a new composition in AE
+ * @name km-comp-grid-layout
  * @author Kyle Harter <kylenmotion@gmail.com>
  * @version 1.0.0
  * 
@@ -17,7 +17,7 @@
 
 (function(thisObj){
     
-    var scriptName = "km-layer-grid-layout";
+    var scriptName = "km-comp-grid-layout";
 
     createUI(thisObj)
 
@@ -33,34 +33,67 @@
 
     var main = win.add("panel", undefined);
     main.orientation = 'column';
+    main.alignChildren = 'left';
 
-    var columnsGroup = main.add("group", undefined, "Columns Group");
-    columnsGroup.orientation = "column";
-    columnsGroup.alignChildren = ["left", "top"];
-    var columnStatic = columnsGroup.add("statictext", undefined, "# Columns");
-    var columnText = columnsGroup.add("edittext", undefined, "5");
-    columnText.characters = 20;
+    var itemsSelGroup = main.add("group", undefined, "Columns Group");
+    itemsSelGroup.orientation = "row";
+    itemsSelGroup.alignChildren = ["left", "top"];
+    var itemsStatic = itemsSelGroup.add("statictext", undefined, "Items Selected: ");
+    var itemsSelected = itemsSelGroup.add("statictext", undefined, "");
+
 
     var rowGroup = main.add("group", undefined, "Rows Group");
-    rowGroup.orientation = "column";
+    rowGroup.orientation = "row";
     rowGroup.alignChildren = ["left", "top"];
-    var rowStatic = rowGroup.add("statictext", undefined, "# Rows");
-    var rowText = rowGroup.add("edittext", undefined, "4");
-    rowText.characters = 20;
+    var rowStatic = rowGroup.add("statictext", undefined, "Items In Rows");
+    var rowText = rowGroup.add("edittext", undefined, "3");
+    rowText.characters = 5;
 
-    var marginsGroup = main.add("group", undefined, "Margin Group");
-    marginsGroup.orientation = "column";
-    marginsGroup.alignChildren = ["left", "top"];
-    var marginsStatic = marginsGroup.add("statictext", undefined, "Margins (pixels)");
-    var marginsText = marginsGroup.add("edittext", undefined, "50");
-    marginsText.characters = 20;
+    var columnItems = main.add("group", undefined, "Column Items Group");
+    columnItems.orientation = "row";
+    columnItems.alignChildren = ["left", "top"];
+    var columnItemsStatic = columnItems.add("statictext", undefined, "Items In Columns: ");
+    var columnItemsAmount = columnItems.add("statictext", undefined, "");
+
+
+    var freezeGroup = main.add("group", undefined, "Freeze Frame Group");
+    freezeGroup.orientation = "row";
+    freezeGroup.alignChildren = ["left", "top"];
+    var freezeFrameStatic = freezeGroup.add("statictext", undefined, "Freeze Frame Comps: ");
+    var freezeFrameAmount = freezeGroup.add("checkbox", undefined);
+    freezeFrameAmount.value = false;
+
+    // var marginsGroup = main.add("group", undefined, "Margin Group");
+    // marginsGroup.orientation = "column";
+    // marginsGroup.alignChildren = ["left", "top"];
+    // var marginsStatic = marginsGroup.add("statictext", undefined, "Margins (pixels)");
+    // var marginsText = marginsGroup.add("edittext", undefined, "50");
+    // marginsText.characters = 20;
 
     var applyGroup = main.add("group", undefined, "Apply Group");
     applyGroup.orientation = 'row';
     var applyButton = applyGroup.add("button", undefined, "Apply");
     applyButton.preferredSize = [-1,30];
-    applyButton.helpTip = "Click: Apply markers to selected layers.\rShift+Click: Apply markers to beginning of a comp."
+    applyButton.helpTip = "Click: Create comp and layout items in grid."
 
+
+    var proj = app.project;
+
+    if(!(proj)){
+        alert("Whoops! You don't have a project open. Be sure to open up a project or create a new one before moving forward");
+        return
+    }    
+
+    var selItems = getSelItems(proj);
+
+    if(selItems.length < 1){
+        alert("Select items in your project panel first.");
+        return
+    }
+    
+    itemsSelected.text = selItems.length.toString();
+
+    columnItemsAmount.text = rowText.text;
 
     applyButton.onClick = function(){
     try {
@@ -95,16 +128,24 @@
     }
 
     
-    function getSelLayers(comp){
-        var selectedLayers = comp.selectedLayers;
-        var selLayersArray = new Array();
+    function getSelItems(proj){
+        var projItems = proj.selection;
+        var selItemsrray = new Array();
 
-        for(var i = 0; i< selectedLayers.length; i++){
-            selLayersArray.push(selectedLayers[i])
+        for(var i = 0; i< projItems.length; i++){
+            
+                selItemsrray.push(proj.item[i])
+            
         }
 
-        return selLayersArray
+        return selItemsrray
         
+    }
+
+//// Need to get Item Info next
+    function getItemInfo(selItems){
+        var selItemArray = selItems;
+
     }
 
 
@@ -130,8 +171,8 @@
             var layerHeight = layerSize.height * (layerScale[1]/100);
             var col = i % numCols;
             var row = Math.floor(i/numCols);
-            var posX = col * layerWidth + marginX;
-            var posY = row * layerHeight + marginY;
+            var posX = col * layerWidth*2 + marginX;
+            var posY = row * layerHeight*2 + marginY;
 
             layerPosition.setValue([posX, posY, 0]);
             
@@ -139,10 +180,6 @@
 
         return layers
     }
-
-
-
-
 
     win.onResizing = win.onResize = function (){
         this.layout.resize();

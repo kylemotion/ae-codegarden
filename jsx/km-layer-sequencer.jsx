@@ -46,6 +46,10 @@
     applyButton.helpTip = "Click: Sequence layers.\rInsert a number in text field to offset layers by a specific amount of frames.\rShift+Click: Randomly sequence layers by frame amount entered in text field."
 
 
+    
+    
+
+
     applyButton.onClick = function(){
     try {
         app.beginUndoGroup("Sequences layers");
