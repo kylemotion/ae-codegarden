@@ -99,7 +99,7 @@
     try {
         app.beginUndoGroup("What script does");
 
-        var activeComp = app.project.activeItem;
+        /* var activeComp = app.project.activeItem;
         var numRows = Number(rowText.text);
         var numCols = Number(columnText.text);
         var marginAmt = Number(marginsText.text);
@@ -116,7 +116,9 @@
             return
         }
         
-        layoutLayers(selLayers, numRows, numCols, activeComp)
+        layoutLayers(selLayers, numRows, numCols, activeComp) */
+
+        createComp(proj, selItems)
 
       } catch(error) {
         alert("An error occured on line: " + error.line + "\nError message: " + error.message);
@@ -130,24 +132,37 @@
     
     function getSelItems(proj){
         var projItems = proj.selection;
-        var selItemsrray = new Array();
+        var selItemsArray = new Array();
 
         for(var i = 0; i< projItems.length; i++){
-            
-                selItemsrray.push(proj.item[i])
+            selItemsArray.push(proj.item[i])
             
         }
 
-        return selItemsrray
+        return selItemsArray
         
     }
 
 //// Need to get Item Info next
     function getItemInfo(selItems){
         var selItemArray = selItems;
+        var itemSizeArray = new Array();
 
+        for(var i = 0; i<selItemArray.length; i++){
+
+        }
+
+        return
     }
 
+
+    function createComp(proj, selItems){
+        var itemAttributes = selItems[0];
+        var newComp = proj.items.addComp("Storyboard Comp", itemAttributes.width, itemAttributes.height, itemAttributes.pixelAspect, itemAttributes.duration, itemAttributes.frameDuration)
+        
+
+        return newComp
+    }
 
     function layoutLayers(layers, rows, cols, comp){
         var selLayers, numRows, numCols
